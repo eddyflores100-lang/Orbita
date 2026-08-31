@@ -1,27 +1,56 @@
-/* ══════ ÓRBITA · interfaz principal ══════ */
-import { initTour3D, startTour, stopTour, isTouring, setCaptionCb, setProgressCb, recordTour, recordGIF, exportPNG, applyPhotos, download, startRecBadge, jumpTour, videoExt, CHAPTERS, getStoryboard } from "./tour3d.js";
+/* ══════ ÓRBITA · interfaz principal v3 ══════
+   Fotos reales → IA de profundidad + ambiente → plano → recorrido 3D
+   dentro de tus fotos → música multi-género → export multi-formato. */
+
+import { ensureModels, modelsReady, analyzeImage, onProgress, ROOM_LABEL } from "./ai.js";
+import { buildPlan } from "./plan.js";
+import { initTour3D, startTour, stopTour, isTouring, setCaptionCb, setProgressCb, setReadyCb, setScenes, scenesReady, getChapters, setFreeRoom, jumpTour, recordTour, recordGIF, exportPNG, download, startRecBadge, videoExt, getStoryboard } from "./tour3d.js";
 import * as music from "./music.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 
-/* ── aparición al scroll (conectores) ── */
+/* ── aparición al scroll ── */
 const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && e.target.classList.add("in")), { threshold: 0.12 });
 $$(".reveal").forEach((el) => io.observe(el));
 
-/* ── galería de fotos ── */
+/* ══════ 01 · IMPORTAR ══════ */
 const PHOTOS = [];
+let photoId = 0;
 const gallery = $("#gallery"), galCount = $("#gal-count");
+const ROOM_KEYS = Object.keys(ROOM_LABEL);
+
 function addPhoto(src, source = "demo", silent = false) {
   if (PHOTOS.some((p) => p.src === src)) return;
-  PHOTOS.push({ src, source });
+  const p = { id: ++photoId, src, source, room: null, conf: 0, depth: null, status: "sin analizar" };
+  PHOTOS.push(p);
   const d = document.createElement("div");
   d.className = "gal-item";
-  d.innerHTML = `<img src="${src}" alt="foto de la propiedad" loading="lazy"><span class="src">${source}</span>`;
+  d.innerHTML = `<img src="${src}" alt="foto de la propiedad" loading="lazy">
+    <span class="src">${source}</span>
+    <span class="ph-st" data-st>nueva</span>
+    <select class="ph-sel" data-sel title="Corrige el ambiente si la IA se equivocó">
+      <option value="">ambiente…</option>
+      ${ROOM_KEYS.map((k) => `<option value="${k}">${ROOM_LABEL[k]}</option>`).join("")}
+    </select>`;
+  d.querySelector("[data-sel]").addEventListener("change", (e) => {
+    const v = e.target.value;
+    if (!v) return;
+    p.room = v; p.conf = 1; p.depth = p.depth || null;
+    setStatus(p, "elegido por ti");
+    rebuildPlan(); rebuildTour();
+  });
+  p.el = d;
   gallery.prepend(d);
   galCount.textContent = `${PHOTOS.length} cargadas`;
-  if (!silent) applyPhotos(PHOTOS.map((p) => p.src));
+  if (!silent) { if (modelsReady()) analyzePhotos(); }
 }
+function setStatus(p, txt, cls = "") {
+  p.status = txt;
+  const el = p.el && p.el.querySelector("[data-st]");
+  if (el) { el.textContent = txt; el.className = "ph-st " + cls; }
+}
+
 const DEMO = [
   "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=70",
   "https://images.unsplash.com/photo-1556912167-f556f1f39fdf?auto=format&fit=crop&w=900&q=70",
@@ -31,7 +60,7 @@ const DEMO = [
 ];
 DEMO.forEach((src) => addPhoto(src, "demo", true));
 
-/* ── importar por link (auto-descarga de fotos) ── */
+/* ── importar por link ── */
 const urlInput = $("#url-input"), fetchStatus = $("#fetch-status");
 $("#btn-fetch").addEventListener("click", async () => {
   const url = urlInput.value.trim();
@@ -49,7 +78,7 @@ $("#btn-fetch").addEventListener("click", async () => {
       .slice(0, 12);
     if (!urls.length) { fetchStatus.textContent = "No se encontraron fotos en el enlace. Prueba otro aviso o arrástralas manualmente."; return; }
     urls.forEach((u) => addPhoto(u, "del link"));
-    fetchStatus.textContent = `✓ ${urls.length} fotos descargadas y aplicadas al recorrido 3D.`;
+    fetchStatus.textContent = `✓ ${urls.length} fotos descargadas. ${modelsReady() ? "Analizando con IA…" : "Pulsa “Analizar fotos con IA” para el plano y el 3D."}`;
   } catch (e) {
     fetchStatus.textContent = "El portal bloqueó la descarga automática (CORS). En producción el servidor la realiza — mientras tanto, arrastra las fotos.";
   }
@@ -69,7 +98,72 @@ function handleFiles(files) {
   });
 }
 
-/* ── escena 3D ── */
+/* ── análisis IA (profundidad + ambiente) ── */
+const aiStatus = $("#ai-status"), aiProg = $("#ai-prog"), aiFill = $("#ai-fill"), btnAnalyze = $("#btn-analyze");
+onProgress((p) => {
+  aiProg.hidden = false;
+  aiFill.style.width = (p * 100).toFixed(0) + "%";
+  aiStatus.textContent = `Descargando modelos IA (una sola vez): ${(p * 100).toFixed(0)}%`;
+});
+let analyzing = false;
+btnAnalyze.addEventListener("click", async () => {
+  if (analyzing) return;
+  analyzing = true;
+  btnAnalyze.disabled = true;
+  try {
+    if (!modelsReady()) {
+      aiStatus.textContent = "Preparando modelos de IA…";
+      const t0 = performance.now();
+      await ensureModels();
+      aiProg.hidden = true;
+      aiStatus.textContent = `Modelos listos en ${((performance.now() - t0) / 1000).toFixed(0)} s — quedaron en caché para próximas visitas.`;
+    }
+    await analyzePhotos();
+  } catch (e) {
+    aiStatus.textContent = "No se pudieron cargar los modelos (revisa tu conexión e intenta de nuevo).";
+  }
+  analyzing = false;
+  btnAnalyze.disabled = false;
+});
+
+async function analyzePhotos() {
+  const queue = PHOTOS.filter((p) => !p.room || p.conf < 1);
+  if (!queue.length) { rebuildPlan(); rebuildTour(); return; }
+  for (const p of queue) {
+    setStatus(p, "analizando…", "busy");
+    try {
+      const r = await analyzeImage(p.src);
+      p.depth = r.depth; p.room = r.room; p.conf = r.conf;
+      const sel = p.el.querySelector("[data-sel]");
+      if (sel) sel.value = r.room;
+      setStatus(p, `${ROOM_LABEL[r.room]} · ${Math.round(r.conf * 100)}%`, "ok");
+    } catch (e) {
+      setStatus(p, "sin análisis (CORS)", "warn");
+    }
+  }
+  aiStatus.textContent = `Análisis completo: ${PHOTOS.filter((p) => p.room && p.conf >= 1).length || queue.length} fotos con profundidad y ambiente. Plano y recorrido 3D actualizados.`;
+  rebuildPlan();
+  rebuildTour();
+}
+
+/* ══════ 02 · PLANO ══════ */
+const planBox = $("#plan-box"), planMeta = $("#plan-meta");
+let planSeed = 1, lastPlan = null;
+function rebuildPlan() {
+  const withRoom = PHOTOS.filter((p) => p.room);
+  if (!withRoom.length) {
+    planBox.innerHTML = `<p class="plan-empty">Analiza tus fotos con IA y el plano aparecerá aquí: ambientes detectados, áreas estimadas y distribución.</p>`;
+    planMeta.textContent = "";
+    return;
+  }
+  lastPlan = buildPlan(withRoom, planSeed);
+  planBox.innerHTML = lastPlan.svg;
+  planMeta.textContent = `${lastPlan.spaces.length} espacios · ≈ ${lastPlan.total} m² · basado en ${lastPlan.roomsUsed} fotos analizadas`;
+}
+$("#btn-plan-regen").addEventListener("click", () => { planSeed = (Math.random() * 1e6) | 0; rebuildPlan(); });
+rebuildPlan();
+
+/* ══════ 03 · RECORRIDO 3D ══════ */
 try {
   initTour3D($("#stage"), $("#c3d"));
   $("#gl-load").hidden = true;
@@ -78,12 +172,14 @@ try {
   $("#gl-fallback").hidden = false;
   $("#gl-load").hidden = true;
 }
+
+const stageEmpty = $("#stage-empty");
 setCaptionCb((txt, idx) => {
   $("#stage-cap").textContent = txt;
   const chip = $("#stage-chap");
   if (typeof idx === "number" && idx >= 0) {
     chip.hidden = false;
-    chip.textContent = `${String(idx + 1).padStart(2, "0")} · ${CHAPTERS[idx]}`;
+    chip.textContent = `${String(idx + 1).padStart(2, "0")} · ${getChapters()[idx] || ""}`;
     $$("#chapters button").forEach((b, j) => b.classList.toggle("on", j === idx));
   } else {
     chip.hidden = true;
@@ -97,6 +193,32 @@ setProgressCb((t) => {
     if ($("#sync-music").checked && music.isPlaying()) { music.stop(); btnPlay.textContent = "▶ Reproducir"; }
   }
 });
+setReadyCb(() => {
+  stageEmpty.hidden = true;
+  buildChapters();
+  [btnTour, $("#btn-shot"), ...$$("[data-rec]"), $("#btn-gif")].forEach((b) => (b.disabled = false));
+});
+
+function rebuildTour() {
+  const withRoom = PHOTOS.filter((p) => p.room);
+  if (!withRoom.length) return;
+  setScenes(withRoom.map((p) => ({ src: p.src, room: p.room, conf: p.conf, depth: p.depth })));
+}
+function buildChapters() {
+  const row = $("#chapters");
+  row.innerHTML = "";
+  getChapters().forEach((name, i) => {
+    const b = document.createElement("button");
+    b.textContent = `${String(i + 1).padStart(2, "0")} · ${name}`;
+    b.addEventListener("click", () => {
+      const t0 = i / getChapters().length + 0.001;
+      if (isTouring()) jumpTour(t0);
+      else if (scenesReady()) { launchTour(t0); }
+      else setFreeRoom(i);
+    });
+    row.appendChild(b);
+  });
+}
 
 const btnFree = $("#btn-free"), btnTour = $("#btn-tour");
 function setFreeUI() {
@@ -105,71 +227,127 @@ function setFreeUI() {
   $("#tourbar").hidden = true;
 }
 function launchTour(t0 = 0) {
+  if (!scenesReady()) { $("#importar").scrollIntoView({ behavior: "smooth" }); return; }
   btnFree.classList.remove("on"); btnTour.classList.add("on");
   btnTour.textContent = "■ Detener";
   $("#tourbar").hidden = false;
   startTour(t0);
-  if ($("#sync-music").checked && !music.isPlaying()) {
-    music.play(); btnPlay.textContent = "■ Detener";
-    musicStatus.textContent = "Música sonando con el recorrido — ajústala en 03 · Música.";
-  }
+  if ($("#sync-music").checked && !music.isPlaying()) startOrResumeMusic("cine");
 }
-/* capítulos (conectores navegables del recorrido) */
-CHAPTERS.forEach((name, i) => {
-  const b = document.createElement("button");
-  b.textContent = `${String(i + 1).padStart(2, "0")} · ${name}`;
-  b.addEventListener("click", () => {
-    const t0 = i / CHAPTERS.length + 0.001;
-    if (isTouring()) jumpTour(t0); else launchTour(t0);
-  });
-  $("#chapters").appendChild(b);
-});
 btnFree.addEventListener("click", () => { if (isTouring()) stopTour(); setFreeUI(); });
 btnTour.addEventListener("click", () => { if (isTouring()) stopTour(); else launchTour(0); });
 $("#btn-shot").addEventListener("click", () => {
+  if (!scenesReady()) return;
   exportPNG("orbita-fotograma.png");
-  addDownload("PNG", "Fotograma de la escena 3D", null, "orbita-fotograma.png");
+  addDownload("PNG", "Fotograma del recorrido por tus fotos", null, "orbita-fotograma.png");
 });
+[btnTour, $("#btn-shot"), ...$$("[data-rec]"), $("#btn-gif")].forEach((b) => (b.disabled = true));
 
-/* ── estudio de música ── */
-const musicStatus = $("#music-status"), btnPlay = $("#btn-play");
-$("#moods").addEventListener("click", (e) => {
-  const b = e.target.closest("button"); if (!b) return;
-  $$("#moods button").forEach((x) => x.classList.toggle("on", x === b));
-  music.setMood(b.dataset.mood);
-  if (music.isPlaying()) musicStatus.textContent = `Carácter cambiado a “${b.textContent}” en vivo.`;
+/* ══════ 04 · MÚSICA ══════ */
+const musicStatus = $("#music-status"), btnPlay = $("#btn-play"), tracksBox = $("#tracks");
+let selectedGenre = "calida", bpmTouched = false;
+
+const segGenres = $("#genres");
+music.genreNames().forEach(({ key, name }, i) => {
+  const b = document.createElement("button");
+  b.textContent = name;
+  b.dataset.genre = key;
+  if (i === 0) b.classList.add("on");
+  b.addEventListener("click", () => {
+    selectedGenre = key;
+    $$("#genres button").forEach((x) => x.classList.toggle("on", x === b));
+    if (!bpmTouched) { $("#bpm").value = music.GENRES[key].bpm; $("#bpm-v").textContent = music.GENRES[key].bpm; }
+    if (music.isPlaying()) musicStatus.textContent = `Género: ${name}. Genera un tema nuevo para escucharlo en este estilo.`;
+  });
+  segGenres.appendChild(b);
 });
-$("#bpm").addEventListener("input", (e) => { $("#bpm-v").textContent = e.target.value; music.setBpm(+e.target.value); });
-$("#perc").addEventListener("click", (e) => {
-  const b = e.currentTarget;
-  const on = b.getAttribute("aria-pressed") !== "true";
-  b.setAttribute("aria-pressed", on);
-  music.setPerc(on);
+$("#bpm").addEventListener("input", (e) => { bpmTouched = true; $("#bpm-v").textContent = e.target.value; });
+
+function fmtDur(s) { return `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`; }
+function trackRow(t) {
+  const d = document.createElement("div");
+  d.className = "track";
+  d.dataset.id = t.id;
+  d.innerHTML = `<b>${t.name}</b><span>${t.genreName} · ${t.bpm} BPM · ${fmtDur(music.trackDuration(t))}</span>
+    <span class="flex"></span>
+    <button class="t-play" data-action="play" title="Reproducir">▶</button>
+    <button class="t-dl" data-action="wav" title="Descargar WAV sin pérdida">WAV</button>
+    <button class="t-dl" data-action="mp3" title="Descargar MP3">MP3</button>`;
+  return d;
+}
+function renderTrackRow(t) {
+  const row = trackRow(t);
+  const old = tracksBox.querySelector(`[data-id="${t.id}"]`);
+  if (old) old.replaceWith(row); else tracksBox.prepend(row);
+  refreshPlayingUI();
+}
+function refreshPlayingUI() {
+  const cur = music.currentTrack();
+  $$("#tracks .track").forEach((r) => {
+    const isCur = cur && +r.dataset.id === cur.id;
+    r.classList.toggle("playing", isCur && music.isPlaying());
+    const pb = r.querySelector(".t-play");
+    pb.textContent = isCur && music.isPlaying() ? "■" : "▶";
+  });
+}
+function startOrResumeMusic(genreFallback) {
+  let t = music.currentTrack();
+  if (!t) {
+    t = music.addTrack(music.generateTrack(
+      genreFallback && music.GENRES[genreFallback] ? (selectedGenre = genreFallback, genreFallback) : selectedGenre,
+      bpmTouched ? +$("#bpm").value : null
+    ));
+    renderTrackRow(t);
+    musicStatus.textContent = `${t.name} compuesto automáticamente para el recorrido.`;
+  }
+  music.play(t);
+  btnPlay.textContent = "■ Detener";
+  refreshPlayingUI();
+}
+
+$("#btn-gen").addEventListener("click", () => {
+  const t = music.addTrack(music.generateTrack(selectedGenre, bpmTouched ? +$("#bpm").value : null));
+  renderTrackRow(t);
+  music.setCurrent(t.id);
+  music.play(t);
+  btnPlay.textContent = "■ Detener";
+  musicStatus.textContent = `${t.name} · ${t.genreName} a ${t.bpm} BPM — cada tema es único (semilla ${t.seed}).`;
 });
 btnPlay.addEventListener("click", () => {
   if (music.isPlaying()) { music.stop(); btnPlay.textContent = "▶ Reproducir"; musicStatus.textContent = ""; }
-  else { music.play(); btnPlay.textContent = "■ Detener"; musicStatus.textContent = "Tema en vivo — suena también dentro del video si grabas ahora."; }
+  else { startOrResumeMusic(); musicStatus.textContent = `Sonando ${music.currentTrack().name} — también viaja dentro del video si grabas ahora.`; }
 });
-$("#btn-regen").addEventListener("click", () => {
-  music.ensure(); music.regenerate();
-  musicStatus.textContent = "Nueva variación generada.";
+tracksBox.addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const row = b.closest(".track");
+  const t = music.getTracks().find((x) => x.id === +row.dataset.id);
+  if (!t) return;
+  music.setCurrent(t.id);
+  if (b.dataset.action === "play") {
+    if (music.isPlaying() && music.currentTrack() === t) { music.stop(); btnPlay.textContent = "▶ Reproducir"; }
+    else { music.play(t); btnPlay.textContent = "■ Detener"; musicStatus.textContent = `Sonando ${t.name}.`; }
+    refreshPlayingUI();
+  } else {
+    const fmt = b.dataset.action;
+    b.disabled = true; b.textContent = "…";
+    try {
+      if (!t._buf) t._buf = await music.renderTrack(t);
+      const blob = fmt === "wav" ? music.bufferToWav(t._buf) : await music.bufferToMp3(t._buf);
+      const name = `orbita-${t.name.toLowerCase().replace(" ", "-")}.${fmt}`;
+      download(blob, name);
+      addDownload(fmt.toUpperCase(), `${t.name} — ${t.genreName} · ${t.bpm} BPM`, blob, name);
+      b.textContent = fmt.toUpperCase();
+    } catch (err) {
+      b.textContent = "error";
+      musicStatus.textContent = "No se pudo exportar: " + err.message;
+    }
+    b.disabled = false;
+  }
 });
-$("#btn-rec-audio").addEventListener("click", async (e) => {
-  const b = e.currentTarget;
-  if (music.isRecording()) { music.stopRec(); return; }
-  if (!music.isPlaying()) { music.play(); btnPlay.textContent = "■ Detener"; }
-  music.startRec((blob) => {
-    b.textContent = "● Grabar tema"; b.classList.remove("on");
-    const name = "orbita-tema.webm";
-    download(blob, name);
-    addDownload("AUDIO", "Tema generado en el estudio", null, name);
-    musicStatus.textContent = "Tema grabado y listo en tus descargas.";
-  });
-  b.textContent = "■ Parar grabación"; b.classList.add("on");
-  musicStatus.textContent = "Grabando el tema…";
-});
+$("#perc") && $("#perc").remove();
 
-/* ── exportar recorridos en varios formatos ── */
+/* ══════ 05 · EXPORTAR ══════ */
 const dlBox = $("#downloads"), dlList = $("#dl-list");
 function addDownload(tag, label, blob, name) {
   dlBox.hidden = false;
@@ -196,7 +374,7 @@ $$("[data-rec]").forEach((b) => b.addEventListener("click", async () => {
   try {
     const audioTrack = music.isPlaying() ? music.getAudioTrack() : null;
     const blob = await recordTour({ aspect, withAudioTrack: audioTrack, fileName });
-    addDownload("VIDEO " + aspect, `Recorrido 3D con cámara por el interior (${ext.toUpperCase()})`, blob, fileName);
+    addDownload("VIDEO " + aspect, `Recorrido 3D por tus fotos (${ext.toUpperCase()}${audioTrack ? " · con música" : ""})`, blob, fileName);
   } catch (err) {
     alert("No se pudo grabar: " + err.message);
   } finally {
@@ -205,13 +383,12 @@ $$("[data-rec]").forEach((b) => b.addEventListener("click", async () => {
   }
 }));
 
-/* GIF animado */
 $("#btn-gif").addEventListener("click", async () => {
   const b = $("#btn-gif");
   b.disabled = true; b.textContent = "Capturando…";
   try {
     const blob = await recordGIF({ onProgress: (p) => (b.textContent = `Codificando ${Math.round(p * 100)}%`) });
-    addDownload("GIF", "Recorrido animado en loop — ligero y universal", blob, "orbita-recorrido.gif");
+    addDownload("GIF", "Recorrido animado por tus fotos — ligero y universal", blob, "orbita-recorrido.gif");
   } catch (err) {
     alert("No se pudo generar el GIF: " + err.message);
   } finally {
@@ -219,11 +396,10 @@ $("#btn-gif").addEventListener("click", async () => {
   }
 });
 
-/* Micrositio HTML publicable */
-const ROOM_TAGS = ["Exterior", "Sala", "Cocina", "Dormitorio", "Baño", "Terraza"];
+const ROOM_TAGS = Object.fromEntries(Object.entries(ROOM_LABEL).map(([k, v]) => [k, v.split(" /")[0]]));
 $("#btn-site").addEventListener("click", () => {
   const figs = PHOTOS.map((p, i) =>
-    `<figure><img src="${p.src}" alt="Foto ${i + 1} de la propiedad" loading="lazy"><figcaption>${String(i + 1).padStart(2, "0")} · ${ROOM_TAGS[i % ROOM_TAGS.length]}</figcaption></figure>`
+    `<figure><img src="${p.src}" alt="Foto ${i + 1} de la propiedad" loading="lazy"><figcaption>${String(i + 1).padStart(2, "0")} · ${p.room ? ROOM_TAGS[p.room] : "Foto " + (i + 1)}${p.area ? " · " + p.area + " m²" : ""}</figcaption></figure>`
   ).join("\n      ");
   const html = `<!DOCTYPE html>
 <html lang="es">
@@ -258,7 +434,7 @@ $("#btn-site").addEventListener("click", () => {
     <p class="brand">ÓRBITA · MICROSITIO</p>
     <h1>Casa Moderna — Palermo</h1>
     <p class="price">USD 185.000</p>
-    <div class="tags"><span>3 ambientes</span><span>2 baños</span><span>120 m²</span><span>Terraza + piscina</span></div>
+    <div class="tags"><span>${lastPlan ? lastPlan.spaces.length + " espacios" : PHOTOS.length + " fotos"}</span>${lastPlan ? `<span>≈ ${lastPlan.total} m²</span>` : ""}<span>Terraza</span></div>
   </header>
   <section class="grid">
       ${figs}
@@ -271,59 +447,57 @@ $("#btn-site").addEventListener("click", () => {
   addDownload("HTML", "Micrositio publicable de la propiedad", new Blob([html], { type: "text/html" }), "orbita-micrositio.html");
 });
 
-/* Storyboard JSON */
 $("#btn-json").addEventListener("click", () => {
+  const cur = music.currentTrack();
   const data = {
     producto: "ÓRBITA · storyboard del recorrido",
     generado: new Date().toISOString(),
     propiedad: { titulo: "Casa Moderna — Palermo", precio: "USD 185.000" },
-    fotos: PHOTOS.length,
-    duracion_total_s: 44,
+    fotos_analizadas: PHOTOS.filter((p) => p.room).length,
     escenas: getStoryboard(),
-    musica: {
-      caracter: music.currentMood(),
-      bpm: +$("#bpm").value,
-      percusion: $("#perc").getAttribute("aria-pressed") === "true",
-    },
-    formatos_export: ["Video 16:9", "Video 9:16", "Video 1:1", "GIF", "PNG", "Audio", "Micrositio HTML"],
+    plano: lastPlan ? { espacios: lastPlan.spaces, total_m2: lastPlan.total } : null,
+    musica: cur ? { tema: cur.name, genero: cur.genreName, bpm: cur.bpm, duracion_s: Math.round(music.trackDuration(cur)) } : null,
+    formatos_export: ["Video 16:9 MP4/WebM", "Video 9:16 MP4/WebM", "Video 1:1 MP4/WebM", "GIF", "PNG", "Música WAV/MP3", "Micrositio HTML", "Storyboard JSON"],
   };
   addDownload("JSON", "Storyboard del recorrido (datos del director IA)", new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), "orbita-storyboard.json");
 });
 
-/* ── asistente IA ── */
+/* ══════ ASISTENTE IA ══════ */
 const aiPanel = $("#ai-panel"), aiMsgs = $("#ai-msgs"), aiChips = $("#ai-chips"), aiInput = $("#ai-input");
 function aiMsg(txt, who = "bot") {
   const m = document.createElement("div");
   m.className = "msg " + who; m.textContent = txt;
   aiMsgs.appendChild(m); aiMsgs.scrollTop = aiMsgs.scrollHeight;
 }
-const CHIPS = ["Iniciar recorrido 3D", "Crear música", "¿Cómo importo fotos?", "Formatos de descarga"];
+const CHIPS = ["¿Cómo funciona el análisis IA?", "Generar recorrido 3D", "Crear música", "Formatos de descarga"];
 CHIPS.forEach((c) => {
   const b = document.createElement("button"); b.textContent = c;
   b.addEventListener("click", () => handleAsk(c));
   aiChips.appendChild(b);
 });
 const ACTIONS = {
-  "Iniciar recorrido 3D": () => { $("#recorrido").scrollIntoView({ behavior: "smooth" }); if (!isTouring()) btnTour.click(); },
-  "Crear música": () => { $("#musica").scrollIntoView({ behavior: "smooth" }); if (!music.isPlaying()) btnPlay.click(); },
+  "Generar recorrido 3D": () => { $("#recorrido").scrollIntoView({ behavior: "smooth" }); if (!isTouring() && scenesReady()) launchTour(0); },
+  "Crear música": () => { $("#musica").scrollIntoView({ behavior: "smooth" }); $("#btn-gen").click(); },
 };
 function handleAsk(q) {
   aiMsg(q, "me");
   const t = q.toLowerCase();
   setTimeout(() => {
     if (ACTIONS[q]) { aiMsg("Hecho — abriendo eso para ti ahora mismo."); ACTIONS[q](); return; }
-    if (/hola|buenas|hey/.test(t)) return aiMsg("Hola. Soy el asistente de ÓRBITA: te guío paso a paso. Puedes pedirme iniciar el recorrido, crear música o explicarte la importación.");
-    if (/link|enlace|url|pegar|portal/.test(t)) { aiMsg("Ve a la sección 01 · Importar, pega el link del aviso y pulsa “Descargar fotos”. Busco las imágenes del aviso y las aplico al recorrido 3D. Si el portal las bloquea, usa el panel de arrastrar y soltar de al lado."); $("#url-input").focus(); return; }
-    if (/foto|arrastr|soltar|subir|imagen/.test(t)) return aiMsg("Puedes arrastrar varias fotos a la vez hacia el panel “Arrastrar y soltar” o elegir archivos. Todo entra a la galería y se cuelga enmarcado dentro de la escena 3D.");
-    if (/m[uú]sic|audio|tema|sonido/.test(t)) { aiMsg("En 03 · Música elige carácter y tempo, pulsa Reproducir y usa ✦ para variaciones. Puedes grabar el tema solo, o dejarlo sonando y se incrusta en el video del recorrido."); return; }
-    if (/3d|recorrido|video|c[aá]mara|tour/.test(t)) { aiMsg("El recorrido es una escena 3D real: en modo libre la orbitas con el mouse; con ▶ Iniciar recorrido la cámara camina por sala, cocina, dormitorio, baño y terraza. Y con los botones de 04 · Exportar grabas ese recorrido como video."); return; }
-    if (/descarg|formato|export|mp4|webm|gif/.test(t)) return aiMsg("Exporto el recorrido en WebM 16:9, 9:16 y 1:1 — con la música incrustada si está sonando — además de fotogramas PNG y el tema de audio. MP4 H.264 y GIF hasta 4K se generan con FFmpeg en producción.");
+    if (/hola|buenas|hey/.test(t)) return aiMsg("Hola. Soy el asistente de ÓRBITA: importo fotos, analizo con IA, genero el plano y el recorrido 3D, compongo música y exporto. ¿Por dónde empezamos?");
+    if (/ia|analisis|an[aá]lisi|modelo|profundidad|depth|clip/.test(t)) return aiMsg("Cada foto pasa por dos modelos reales ejecutados en tu navegador: Depth Anything estima la profundidad píxel a píxel y CLIP detecta el ambiente (sala, cocina…). Descargan ~90 MB la primera vez y quedan en caché. Con eso se construyen el plano y el 3D.");
+    if (/plano|planta|distribuci|m²|metros/.test(t)) return aiMsg("El plano se genera desde lo que la IA detectó en TUS fotos: cada ambiente detectado se convierte en un espacio con área estimada. Puedes corregir el ambiente de cada foto con el selector de la galería y regenerar la disposición en 02 · Plano.");
+    if (/link|enlace|url|pegar|portal/.test(t)) { aiMsg("Ve a 01 · Importar, pega el link del aviso y pulsa “Descargar fotos”. Luego “Analizar fotos con IA” para el plano y el recorrido. Si el portal bloquea (CORS), arrastra las fotos al panel de al lado."); $("#url-input").focus(); return; }
+    if (/foto|arrastr|soltar|subir|imagen/.test(t)) return aiMsg("Arrastra varias fotos al panel “Arrastrar y soltar” o elige archivos. Todo entra a la galería, se analiza con IA y alimenta el plano y el recorrido 3D.");
+    if (/m[uú]sic|audio|tema|sonido|canci/.test(t)) return aiMsg("En 04 · Música elige entre 8 géneros (lo-fi, bossa, jazz, cine…) y pulsa ✦ Generar tema: cada tema se compone con semilla única, nunca escuchas dos iguales. Descárgalos en WAV sin pérdida o MP3, y suenan incrustados en los videos.");
+    if (/3d|recorrido|video|c[aá]mara|tour|parallax/.test(t)) return aiMsg("El recorrido camina DENTRO de tus fotos: la profundidad estimada por IA se convierte en geometría 3D y la cámara se mueve con parallax real. Usa los capítulos para saltar de ambiente y 05 · Exportar para grabar el video.");
+    if (/descarg|formato|export|mp4|webm|gif|wav|mp3/.test(t)) return aiMsg("Exporto: video MP4 o WebM en 16:9, 9:16 y 1:1 (con música incrustada), GIF animado, fotogramas PNG, música en WAV y MP3, micrositio HTML publicable y storyboard JSON. En producción, FFmpeg añade 4K.");
     if (/precio|costo|plan/.test(t)) return aiMsg("Esta es la demo pública del motor. Los planes y el despliegue productivo se definen con el equipo; el repo está abierto en GitHub.");
-    aiMsg("Buena pregunta. Puedo ayudarte con: importar fotos (link o arrastrar), el recorrido 3D, la creación de música y los formatos de descarga. ¿Cuál te interesa?");
+    aiMsg("Buena pregunta. Puedo ayudarte con: importar fotos (link o arrastrar), el análisis IA, el plano, el recorrido 3D, la música y los formatos de descarga. ¿Qué te interesa?");
   }, 420);
 }
 $("#ai-fab").addEventListener("click", () => { aiPanel.hidden = !aiPanel.hidden; if (!aiPanel.hidden) aiInput.focus(); });
 $("#ai-close").addEventListener("click", () => (aiPanel.hidden = true));
 $("#ai-send").addEventListener("click", () => { const v = aiInput.value.trim(); if (v) { aiInput.value = ""; handleAsk(v); } });
 aiInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { const v = aiInput.value.trim(); if (v) { aiInput.value = ""; handleAsk(v); } } });
-aiMsg("Hola, soy el asistente de ÓRBITA. Puedo explicarte cómo funciona todo o ejecutar acciones por ti. ¿Empezamos?");
+aiMsg("Hola, soy el asistente de ÓRBITA. Todo lo que ves sale de tus fotos: análisis IA, plano, recorrido 3D y música. ¿Empezamos?");

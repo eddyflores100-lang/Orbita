@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ÓRBITA — Del link de la propiedad al recorrido 3D</title>
-<meta name="description" content="Pega el link de una propiedad, ÓRBITA descarga las fotos y genera un recorrido 3D interactivo con música creada en el sitio. Exporta en varios formatos.">
-<meta property="og:title" content="ÓRBITA — Del link de la propiedad al recorrido 3D">
-<meta property="og:description" content="Pega el link, descarga las fotos, camina la propiedad en 3D, crea la música y exporta el video en varios formatos.">
+<title>ÓRBITA — De tus fotos al plano y al recorrido 3D</title>
+<meta name="description" content="Pega el link de una propiedad o suelta tus fotos: ÓRBITA analiza cada imagen con IA real (profundidad + ambiente), dibuja el plano, genera un recorrido 3D dentro de tus fotos, compone música multi-género y exporta en varios formatos.">
+<meta property="og:title" content="ÓRBITA — De tus fotos al plano y al recorrido 3D">
+<meta property="og:description" content="IA real en tu navegador: profundidad por foto, plano desde tus ambientes, recorrido 3D con parallax, música única y export multi-formato.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://eddyflores100-lang.github.io/Orbita/">
 <meta name="twitter:card" content="summary_large_image">
@@ -26,9 +26,10 @@
     <a class="brand" href="#top"><span class="dot"></span>ÓRBITA</a>
     <div class="nav-links">
       <a href="#importar">01 · Importar</a>
-      <a href="#recorrido">02 · Recorrido 3D</a>
-      <a href="#musica">03 · Música</a>
-      <a href="#exportar">04 · Exportar</a>
+      <a href="#plano">02 · Plano IA</a>
+      <a href="#recorrido">03 · Recorrido 3D</a>
+      <a href="#musica">04 · Música</a>
+      <a href="#exportar">05 · Exportar</a>
     </div>
   </div>
 </nav>
@@ -37,7 +38,7 @@
   <div class="wrap">
     <p class="kicker reveal">Property Content Engine</p>
     <h1 class="reveal">Del link de la propiedad<br><em>al recorrido 3D</em></h1>
-    <p class="sub reveal">Pega el enlace de un aviso inmobiliario: ÓRBITA descarga las fotos, construye un recorrido 3D por el que caminas, compone la música en el sitio y exporta el video en varios formatos.</p>
+    <p class="sub reveal">Pega el link de un aviso o suelta tus fotos: ÓRBITA analiza cada imagen con IA real (profundidad píxel a píxel + ambiente), dibuja el plano, genera un recorrido 3D <em>dentro de tus fotos</em>, compone música única y lo exporta todo.</p>
     <div class="cta reveal">
       <a class="btn solid" href="#importar">Pegar link de propiedad</a>
       <a class="btn line" href="#recorrido">Ver recorrido 3D ↓</a>
@@ -80,12 +81,37 @@
 
     <div class="gal-h reveal"><h3 id="gal-title">Fotos de la propiedad</h3><span class="chip" id="gal-count">0 cargadas</span></div>
     <div class="gallery" id="gallery"></div>
+
+    <div class="card ai-card reveal">
+      <div class="ai-bar-l">
+        <h3>Análisis IA real</h3>
+        <p class="hint">Depth Anything estima la profundidad de cada foto y CLIP detecta el ambiente (sala, cocina, dormitorio…). Corre 100% en tu navegador: ≈ 90 MB la primera vez, luego queda en caché. Con esto se construyen el plano y el 3D — sin casas prefabricadas.</p>
+      </div>
+      <div class="ai-bar-r">
+        <button class="btn solid" id="btn-analyze">Analizar fotos con IA</button>
+        <div class="ai-prog" id="ai-prog" hidden><i id="ai-fill"></i></div>
+        <p class="status" id="ai-status"></p>
+      </div>
+    </div>
   </section>
 
-  <!-- ══════ 02 RECORRIDO 3D ══════ -->
+  <!-- ══════ 02 PLANO ══════ -->
+  <section class="sec" id="plano">
+    <header class="sec-h reveal"><span class="num">02</span><h2>Plano generado desde tus fotos</h2><span class="rule"></span></header>
+    <p class="sec-sub reveal">Los ambientes del plano salen de lo que la IA detectó en cada foto. El área es estimada; corrige el ambiente de cualquier foto con el selector de la galería y el plano se redibuja.</p>
+    <div class="card plan-card reveal">
+      <div id="plan-box" class="plan-box"><p class="plan-empty">Analiza tus fotos con IA y el plano aparecerá aquí.</p></div>
+      <div class="plan-foot">
+        <span class="chip" id="plan-meta"></span>
+        <button class="btn line" id="btn-plan-regen">↻ Regenerar disposición</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ 03 RECORRIDO 3D ══════ -->
   <section class="sec" id="recorrido">
-    <header class="sec-h reveal"><span class="num">02</span><h2>Recorrido 3D interactivo</h2><span class="rule"></span></header>
-    <p class="sec-sub reveal">Una escena 3D real de la propiedad. En <b>modo libre</b> la orbitas y la exploras con el mouse; en <b>recorrido</b> la cámara camina por el interior: sala, cocina, dormitorio, baño y terraza.</p>
+    <header class="sec-h reveal"><span class="num">03</span><h2>Recorrido 3D dentro de tus fotos</h2><span class="rule"></span></header>
+    <p class="sec-sub reveal">La profundidad que la IA estimó para cada foto se convierte en geometría 3D: la cámara camina <b>dentro</b> de la imagen con parallax real, conectando tus ambientes con transiciones elegantes.</p>
 
     <div class="stage-card reveal">
       <div class="stage" id="stage">
@@ -96,6 +122,7 @@
         <div class="stage-tourbar" id="tourbar" hidden><i id="tourfill"></i></div>
         <div class="stage-rec" id="recbadge" hidden><span class="recdot"></span> GRABANDO <b id="rectime">0:00</b></div>
         <div class="stage-fallback" id="gl-fallback" hidden>Este navegador no pudo iniciar WebGL. Prueba con Chrome o Firefox actualizados.</div>
+        <div class="stage-empty" id="stage-empty">Analiza tus fotos con IA (sección 01) y el recorrido 3D se construye con ellas.</div>
       </div>
       <div class="stage-bar">
         <button class="btn line on" id="btn-free">Modo libre</button>
@@ -106,42 +133,36 @@
       </div>
       <div class="chapters" id="chapters" aria-label="Capítulos del recorrido"></div>
     </div>
-    <p class="fine reveal">Tus fotos importadas se colocan como arte enmarcado dentro de la escena. En producción, el render FFmpeg aplica profundidad real a cada foto (parallax + cámara virtual) para generar el MP4.</p>
+    <p class="fine reveal">Tus fotos → profundidad IA → malla 3D navegable. En modo libre arrastra para mirar con parallax y usa la rueda para acercarte. En producción, FFmpeg convierte este mismo recorrido en MP4 hasta 4K.</p>
   </section>
 
-  <!-- ══════ 03 MÚSICA ══════ -->
+  <!-- ══════ 04 MÚSICA ══════ -->
   <section class="sec" id="musica">
-    <header class="sec-h reveal"><span class="num">03</span><h2>Estudio de música</h2><span class="rule"></span></header>
-    <p class="sec-sub reveal">Crea la banda sonora del recorrido aquí mismo: elige un carácter, ajusta el tempo y genera variaciones. Suena en vivo y puedes grabarla para exportarla.</p>
+    <header class="sec-h reveal"><span class="num">04</span><h2>Estudio de música</h2><span class="rule"></span></header>
+    <p class="sec-sub reveal">Ocho géneros, temas únicos: cada canción se compone con semilla propia (nunca escuchas dos iguales), con estructura real de intro, desarrollo y cierre. Descarga en WAV sin pérdida o MP3 universal.</p>
 
     <div class="card music-card reveal">
       <div class="music-grid">
-        <div class="m-field"><label>Carácter</label>
-          <div class="seg" id="moods">
-            <button class="on" data-mood="calida">Cálida</button>
-            <button data-mood="elegante">Elegante</button>
-            <button data-mood="natural">Natural</button>
-          </div>
+        <div class="m-field"><label>Género</label>
+          <div class="seg seg-wrap" id="genres"></div>
         </div>
         <div class="m-field"><label>Tempo · <b id="bpm-v">84</b> BPM</label>
-          <input type="range" id="bpm" min="64" max="120" value="84">
-        </div>
-        <div class="m-field"><label>Percusión suave</label>
-          <button class="switch" id="perc" aria-pressed="false"><i></i></button>
+          <input type="range" id="bpm" min="60" max="128" value="84">
         </div>
       </div>
       <div class="music-actions">
-        <button class="btn solid" id="btn-play">▶ Reproducir</button>
-        <button class="btn line" id="btn-regen">✦ Generar variación</button>
-        <button class="btn line" id="btn-rec-audio">● Grabar tema</button>
+        <button class="btn solid" id="btn-gen">✦ Generar tema</button>
+        <button class="btn line" id="btn-play">▶ Reproducir</button>
         <span class="status" id="music-status"></span>
       </div>
+      <div class="tracks" id="tracks"></div>
     </div>
+    <p class="fine reveal">La banda sonora viaja incrustada en los videos si está sonando al grabar. WAV 16-bit PCM para edición; MP3 192 kbps para compartir.</p>
   </section>
 
-  <!-- ══════ 04 EXPORTAR ══════ -->
+  <!-- ══════ 05 EXPORTAR ══════ -->
   <section class="sec" id="exportar">
-    <header class="sec-h reveal"><span class="num">04</span><h2>Exportar en varios formatos</h2><span class="rule"></span></header>
+    <header class="sec-h reveal"><span class="num">05</span><h2>Exportar en varios formatos</h2><span class="rule"></span></header>
     <p class="sec-sub reveal">Graba el recorrido 3D tal como se ve —con la música si está sonando— y descarga al instante. Elige el formato según dónde lo vas a publicar.</p>
 
     <div class="grid-3">
@@ -165,7 +186,7 @@
   <div class="wrap foot-in">
     <div><b>ÓRBITA</b> — Property Content Engine</div>
     <a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">github.com/eddyflores100-lang/Orbita</a>
-    <span>Demo en navegador · producción: Next.js + Prisma + FFmpeg</span>
+    <span>Demo en navegador · IA de profundidad 100% client-side · producción: Next.js + Prisma + FFmpeg</span>
   </div>
 </footer>
 
@@ -181,6 +202,7 @@
 </div>
 
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 <script>
   setTimeout(function () {
     var el = document.getElementById("gl-load");
