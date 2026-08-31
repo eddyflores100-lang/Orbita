@@ -138,7 +138,19 @@ const CAPS = [
   "Sala de estar — luz natural","Dormitorio principal","Hall de distribución","Baño con tina",
   "Terraza y piscina","ÓRBITA · recorrido generado con IA",
 ];
+export const CHAPTERS = [
+  "Aproximación","Entrada","Cocina y comedor","Paso a la sala","Sala de estar",
+  "Dormitorio","Hall","Baño","Terraza y piscina","Cierre",
+];
 const TOUR_SECONDS = 44;
+export function getStoryboard() {
+  return CAPS.map((c, i) => ({
+    orden: i + 1,
+    capitulo: CHAPTERS[i],
+    caption: c,
+    duracion_s: +(TOUR_SECONDS / CAPS.length).toFixed(1),
+  }));
+}
 
 function initTour3D(stageEl, canvasEl) {
   stage = stageEl; canvas = canvasEl; clock = new THREE.Clock();
@@ -209,14 +221,18 @@ function renderTour() {
   const t = tgtCurve.getPointAt(tourT);
   camera.lookAt(t);
   const idx = Math.min(CAPS.length - 1, Math.floor(tourT * CAPS.length));
-  if (captionCb) captionCb(CAPS[idx]);
+  if (captionCb) captionCb(CAPS[idx], idx);
   if (progressCb) progressCb(tourT);
 }
 
-export function startTour() {
+export function startTour(fromT = 0) {
   if (touring) return;
-  touring = true; tourT = 0;
+  touring = true; tourT = fromT;
   controls.autoRotate = false; controls.enabled = false;
+}
+export function jumpTour(t) {
+  if (!touring) return;
+  tourT = Math.min(0.999, Math.max(0, t));
 }
 function endTour() {
   touring = false;
@@ -256,6 +272,12 @@ export function applyPhotos(srcs) {
 
 /* ── grabación del recorrido (canvas + audio) ── */
 function pickMime(list) { return list.find((m) => MediaRecorder.isTypeSupported(m)) || ""; }
+const VIDEO_MIMES = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+let lastVideoMime = "";
+export function videoExt() {
+  if (!lastVideoMime) lastVideoMime = pickMime(VIDEO_MIMES);
+  return /mp4/.test(lastVideoMime) ? "mp4" : "webm";
+}
 function download(blob, name) {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob); a.download = name; a.click();
@@ -270,11 +292,12 @@ export async function recordTour({ aspect = "16:9", withAudioTrack = null, fileN
   await new Promise((r) => setTimeout(r, 450));
   const stream = canvas.captureStream(30);
   if (withAudioTrack) stream.addTrack(withAudioTrack);
-  const mime = pickMime(["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"]);
+  const mime = pickMime(VIDEO_MIMES);
+  lastVideoMime = mime;
   rec = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 6_000_000 } : undefined);
   recChunks = [];
   rec.ondataavailable = (e) => e.data.size && recChunks.push(e.data);
-  const done = new Promise((res) => (rec.onstop = () => res(new Blob(recChunks, { type: "video/webm" }))));
+  const done = new Promise((res) => (rec.onstop = () => res(new Blob(recChunks, { type: rec.mimeType || "video/webm" }))));
   rec.start(250);
   startTour();
   onTourDone(() => setTimeout(() => rec && rec.state !== "inactive" && rec.stop(), 350));
@@ -282,6 +305,46 @@ export async function recordTour({ aspect = "16:9", withAudioTrack = null, fileN
   clearInterval(recTimer); rec = null;
   download(blob, fileName);
   setAspect("16:9");
+  return blob;
+}
+
+/* ── GIF animado (gif.js + worker vía blob) ── */
+let gifLoading = null;
+function loadGifWorker() {
+  if (window.__gifWorkerURL) return Promise.resolve();
+  if (gifLoading) return gifLoading;
+  gifLoading = fetch("https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js")
+    .then((r) => { if (!r.ok) throw new Error("worker HTTP " + r.status); return r.text(); })
+    .then((code) => { window.__gifWorkerURL = URL.createObjectURL(new Blob([code], { type: "application/javascript" })); });
+  return gifLoading;
+}
+
+export async function recordGIF({ frames = 44, width = 480, fileName = "orbita-recorrido.gif", onProgress = null } = {}) {
+  if (touring) stopTour();
+  if (!window.GIF) throw new Error("el generador GIF no cargó — revisa tu conexión");
+  await loadGifWorker();
+  const height = Math.round((width * 9) / 16);
+  const r2 = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  r2.setSize(width, height, false);
+  r2.outputColorSpace = THREE.SRGBColorSpace;
+  r2.toneMapping = THREE.ACESFilmicToneMapping;
+  r2.toneMappingExposure = 1.05;
+  const cam2 = camera.clone();
+  cam2.aspect = width / height; cam2.updateProjectionMatrix();
+  const gif = new window.GIF({ workers: 2, quality: 9, width, height, workerScript: window.__gifWorkerURL });
+  const delay = Math.round((TOUR_SECONDS * 1000) / frames);
+  if (onProgress) gif.on("progress", (p) => onProgress(p));
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    cam2.position.copy(posCurve.getPointAt(t));
+    cam2.lookAt(tgtCurve.getPointAt(t));
+    r2.render(scene, cam2);
+    gif.addFrame(r2.domElement, { copy: true, delay });
+    await new Promise((r) => setTimeout(r, 40));
+  }
+  r2.dispose(); r2.forceContextLoss();
+  const blob = await new Promise((res) => { gif.on("finished", res); gif.render(); });
+  download(blob, fileName);
   return blob;
 }
 

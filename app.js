@@ -1,5 +1,5 @@
 /* ══════ ÓRBITA · interfaz principal ══════ */
-import { initTour3D, startTour, stopTour, isTouring, setCaptionCb, setProgressCb, setAspect, recordTour, exportPNG, applyPhotos, download, startRecBadge } from "./tour3d.js";
+import { initTour3D, startTour, stopTour, isTouring, setCaptionCb, setProgressCb, recordTour, recordGIF, exportPNG, applyPhotos, download, startRecBadge, jumpTour, videoExt, CHAPTERS, getStoryboard } from "./tour3d.js";
 import * as music from "./music.js";
 
 const $ = (s) => document.querySelector(s);
@@ -72,13 +72,30 @@ function handleFiles(files) {
 /* ── escena 3D ── */
 try {
   initTour3D($("#stage"), $("#c3d"));
+  $("#gl-load").hidden = true;
+  window.__orbitaReady = true;
 } catch (e) {
   $("#gl-fallback").hidden = false;
+  $("#gl-load").hidden = true;
 }
-setCaptionCb((txt) => { $("#stage-cap").textContent = txt; });
+setCaptionCb((txt, idx) => {
+  $("#stage-cap").textContent = txt;
+  const chip = $("#stage-chap");
+  if (typeof idx === "number" && idx >= 0) {
+    chip.hidden = false;
+    chip.textContent = `${String(idx + 1).padStart(2, "0")} · ${CHAPTERS[idx]}`;
+    $$("#chapters button").forEach((b, j) => b.classList.toggle("on", j === idx));
+  } else {
+    chip.hidden = true;
+    $$("#chapters button").forEach((b) => b.classList.remove("on"));
+  }
+});
 setProgressCb((t) => {
   $("#tourfill").style.width = (t * 100).toFixed(1) + "%";
-  if (t === 0) setFreeUI();
+  if (t === 0) {
+    setFreeUI();
+    if ($("#sync-music").checked && music.isPlaying()) { music.stop(); btnPlay.textContent = "▶ Reproducir"; }
+  }
 });
 
 const btnFree = $("#btn-free"), btnTour = $("#btn-tour");
@@ -87,14 +104,28 @@ function setFreeUI() {
   btnTour.textContent = "▶ Iniciar recorrido";
   $("#tourbar").hidden = true;
 }
-btnFree.addEventListener("click", () => { if (isTouring()) { stopTour(); } setFreeUI(); });
-btnTour.addEventListener("click", () => {
-  if (isTouring()) { stopTour(); return; }
+function launchTour(t0 = 0) {
   btnFree.classList.remove("on"); btnTour.classList.add("on");
   btnTour.textContent = "■ Detener";
   $("#tourbar").hidden = false;
-  startTour();
+  startTour(t0);
+  if ($("#sync-music").checked && !music.isPlaying()) {
+    music.play(); btnPlay.textContent = "■ Detener";
+    musicStatus.textContent = "Música sonando con el recorrido — ajústala en 03 · Música.";
+  }
+}
+/* capítulos (conectores navegables del recorrido) */
+CHAPTERS.forEach((name, i) => {
+  const b = document.createElement("button");
+  b.textContent = `${String(i + 1).padStart(2, "0")} · ${name}`;
+  b.addEventListener("click", () => {
+    const t0 = i / CHAPTERS.length + 0.001;
+    if (isTouring()) jumpTour(t0); else launchTour(t0);
+  });
+  $("#chapters").appendChild(b);
 });
+btnFree.addEventListener("click", () => { if (isTouring()) stopTour(); setFreeUI(); });
+btnTour.addEventListener("click", () => { if (isTouring()) stopTour(); else launchTour(0); });
 $("#btn-shot").addEventListener("click", () => {
   exportPNG("orbita-fotograma.png");
   addDownload("PNG", "Fotograma de la escena 3D", null, "orbita-fotograma.png");
@@ -158,16 +189,14 @@ function addDownload(tag, label, blob, name) {
 }
 $$("[data-rec]").forEach((b) => b.addEventListener("click", async () => {
   const aspect = b.dataset.rec;
+  const ext = videoExt();
+  const fileName = `orbita-recorrido-${aspect.replace(":", "x")}.${ext}`;
   b.disabled = true; b.textContent = "Grabando…";
   $("#recbadge").hidden = false; startRecBadge();
   try {
     const audioTrack = music.isPlaying() ? music.getAudioTrack() : null;
-    const blob = await recordTour({
-      aspect,
-      withAudioTrack: audioTrack,
-      fileName: `orbita-recorrido-${aspect.replace(":", "x")}.webm`,
-    });
-    addDownload("VIDEO " + aspect, "Recorrido 3D con cámara por el interior", blob, `orbita-recorrido-${aspect.replace(":", "x")}.webm`);
+    const blob = await recordTour({ aspect, withAudioTrack: audioTrack, fileName });
+    addDownload("VIDEO " + aspect, `Recorrido 3D con cámara por el interior (${ext.toUpperCase()})`, blob, fileName);
   } catch (err) {
     alert("No se pudo grabar: " + err.message);
   } finally {
@@ -175,6 +204,91 @@ $$("[data-rec]").forEach((b) => b.addEventListener("click", async () => {
     b.disabled = false; b.textContent = "Grabar recorrido";
   }
 }));
+
+/* GIF animado */
+$("#btn-gif").addEventListener("click", async () => {
+  const b = $("#btn-gif");
+  b.disabled = true; b.textContent = "Capturando…";
+  try {
+    const blob = await recordGIF({ onProgress: (p) => (b.textContent = `Codificando ${Math.round(p * 100)}%`) });
+    addDownload("GIF", "Recorrido animado en loop — ligero y universal", blob, "orbita-recorrido.gif");
+  } catch (err) {
+    alert("No se pudo generar el GIF: " + err.message);
+  } finally {
+    b.disabled = false; b.textContent = "Crear GIF";
+  }
+});
+
+/* Micrositio HTML publicable */
+const ROOM_TAGS = ["Exterior", "Sala", "Cocina", "Dormitorio", "Baño", "Terraza"];
+$("#btn-site").addEventListener("click", () => {
+  const figs = PHOTOS.map((p, i) =>
+    `<figure><img src="${p.src}" alt="Foto ${i + 1} de la propiedad" loading="lazy"><figcaption>${String(i + 1).padStart(2, "0")} · ${ROOM_TAGS[i % ROOM_TAGS.length]}</figcaption></figure>`
+  ).join("\n      ");
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casa Moderna — Palermo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#F6F3EC;--ink:#232019;--muted:#7C7668;--line:#E3DCCE;--acc:#A05C3B}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font:400 1rem/1.6 'Inter',sans-serif}
+  .w{max-width:960px;margin:0 auto;padding:0 24px}
+  header{padding:70px 0 40px;text-align:center}
+  .brand{font:500 .8rem 'Fraunces';letter-spacing:.3em;color:var(--acc);margin-bottom:26px}
+  h1{font:500 clamp(2rem,5vw,3.2rem)/1.1 'Fraunces'}
+  .price{margin-top:14px;font-size:1.05rem;color:var(--muted)}
+  .tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+  .tags span{border:1px solid var(--line);border-radius:99px;padding:6px 16px;font-size:.8rem;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:30px 0}
+  figure{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  figcaption{padding:10px 14px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .cta{text-align:center;padding:30px 0 70px}
+  .cta a{display:inline-block;background:var(--ink);color:#FBF9F4;border-radius:99px;padding:13px 30px;text-decoration:none;font-size:.92rem}
+  footer{border-top:1px solid var(--line);padding:24px;text-align:center;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="w">
+  <header>
+    <p class="brand">ÓRBITA · MICROSITIO</p>
+    <h1>Casa Moderna — Palermo</h1>
+    <p class="price">USD 185.000</p>
+    <div class="tags"><span>3 ambientes</span><span>2 baños</span><span>120 m²</span><span>Terraza + piscina</span></div>
+  </header>
+  <section class="grid">
+      ${figs}
+  </section>
+  <div class="cta"><a href="mailto:contacto@orbita.app?subject=Visita%20Casa%20Moderna%20Palermo">Agendar visita</a></div>
+</div>
+<footer>Recorrido y contenido generados con ÓRBITA — Property Content Engine</footer>
+</body>
+</html>`;
+  addDownload("HTML", "Micrositio publicable de la propiedad", new Blob([html], { type: "text/html" }), "orbita-micrositio.html");
+});
+
+/* Storyboard JSON */
+$("#btn-json").addEventListener("click", () => {
+  const data = {
+    producto: "ÓRBITA · storyboard del recorrido",
+    generado: new Date().toISOString(),
+    propiedad: { titulo: "Casa Moderna — Palermo", precio: "USD 185.000" },
+    fotos: PHOTOS.length,
+    duracion_total_s: 44,
+    escenas: getStoryboard(),
+    musica: {
+      caracter: music.currentMood(),
+      bpm: +$("#bpm").value,
+      percusion: $("#perc").getAttribute("aria-pressed") === "true",
+    },
+    formatos_export: ["Video 16:9", "Video 9:16", "Video 1:1", "GIF", "PNG", "Audio", "Micrositio HTML"],
+  };
+  addDownload("JSON", "Storyboard del recorrido (datos del director IA)", new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), "orbita-storyboard.json");
+});
 
 /* ── asistente IA ── */
 const aiPanel = $("#ai-panel"), aiMsgs = $("#ai-msgs"), aiChips = $("#ai-chips"), aiInput = $("#ai-input");

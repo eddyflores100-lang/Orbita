@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ÓRBITA — Del link de la propiedad al recorrido 3D</title>
 <meta name="description" content="Pega el link de una propiedad, ÓRBITA descarga las fotos y genera un recorrido 3D interactivo con música creada en el sitio. Exporta en varios formatos.">
+<meta property="og:title" content="ÓRBITA — Del link de la propiedad al recorrido 3D">
+<meta property="og:description" content="Pega el link, descarga las fotos, camina la propiedad en 3D, crea la música y exporta el video en varios formatos.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://eddyflores100-lang.github.io/Orbita/">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -86,6 +91,8 @@
       <div class="stage" id="stage">
         <canvas id="c3d"></canvas>
         <div class="stage-cap" id="stage-cap">Modo libre — arrastra para orbitar, rueda para acercar</div>
+        <div class="stage-chap" id="stage-chap" hidden></div>
+        <div class="stage-load" id="gl-load">Cargando escena 3D…</div>
         <div class="stage-tourbar" id="tourbar" hidden><i id="tourfill"></i></div>
         <div class="stage-rec" id="recbadge" hidden><span class="recdot"></span> GRABANDO <b id="rectime">0:00</b></div>
         <div class="stage-fallback" id="gl-fallback" hidden>Este navegador no pudo iniciar WebGL. Prueba con Chrome o Firefox actualizados.</div>
@@ -95,7 +102,9 @@
         <button class="btn solid" id="btn-tour">▶ Iniciar recorrido</button>
         <span class="flex"></span>
         <button class="btn line" id="btn-shot" title="Exportar fotograma PNG">Fotograma PNG</button>
+        <label class="sync"><input type="checkbox" id="sync-music" checked><span>Música en el recorrido</span></label>
       </div>
+      <div class="chapters" id="chapters" aria-label="Capítulos del recorrido"></div>
     </div>
     <p class="fine reveal">Tus fotos importadas se colocan como arte enmarcado dentro de la escena. En producción, el render FFmpeg aplica profundidad real a cada foto (parallax + cámara virtual) para generar el MP4.</p>
   </section>
@@ -136,11 +145,14 @@
     <p class="sec-sub reveal">Graba el recorrido 3D tal como se ve —con la música si está sonando— y descarga al instante. Elige el formato según dónde lo vas a publicar.</p>
 
     <div class="grid-3">
-      <div class="card fmt reveal"><b>Video 16:9</b><span>1280×720 · horizontal</span><p>Para YouTube, web y presentaciones.</p><button class="btn solid" data-rec="16:9">Grabar recorrido</button></div>
-      <div class="card fmt reveal"><b>Video 9:16</b><span>720×1280 · vertical</span><p>Para Instagram, TikTok y WhatsApp.</p><button class="btn solid" data-rec="9:16">Grabar recorrido</button></div>
-      <div class="card fmt reveal"><b>Video 1:1</b><span>960×960 · cuadrado</span><p>Para feeds y marketplaces.</p><button class="btn solid" data-rec="1:1">Grabar recorrido</button></div>
+      <div class="card fmt reveal"><b>Video 16:9</b><span>1280×720 · MP4/WebM</span><p>Para YouTube, web y presentaciones. Graba el recorrido con la música si está sonando.</p><button class="btn solid" data-rec="16:9">Grabar recorrido</button></div>
+      <div class="card fmt reveal"><b>Video 9:16</b><span>720×1280 · MP4/WebM</span><p>Para Instagram, TikTok, Reels y WhatsApp Status.</p><button class="btn solid" data-rec="9:16">Grabar recorrido</button></div>
+      <div class="card fmt reveal"><b>Video 1:1</b><span>960×960 · MP4/WebM</span><p>Para feeds y marketplaces inmobiliarios.</p><button class="btn solid" data-rec="1:1">Grabar recorrido</button></div>
+      <div class="card fmt reveal"><b>GIF animado</b><span>480×270 · loop</span><p>Preview ligero para chats, emails y portales que no aceptan video.</p><button class="btn line" id="btn-gif">Crear GIF</button></div>
+      <div class="card fmt reveal"><b>Micrositio HTML</b><span>1 archivo · publicable</span><p>Página lista para publicar o enviar por WhatsApp: galería, precio y contacto.</p><button class="btn solid" id="btn-site">Generar micrositio</button></div>
+      <div class="card fmt reveal"><b>Storyboard JSON</b><span>datos del director IA</span><p>Escenas, captions, duración y música para reeditar donde quieras.</p><button class="btn line" id="btn-json">Descargar JSON</button></div>
     </div>
-    <p class="fine reveal">El video se genera en WebM directamente en tu navegador (imagen + audio). En producción, FFmpeg entrega además MP4 H.264, GIF y resoluciones hasta 4K.</p>
+    <p class="fine reveal">El video se genera aquí mismo (MP4 si tu navegador lo soporta; WebM en el resto) con imagen y audio. GIF, micrositio y storyboard se crean también en el navegador. En producción, FFmpeg añade 4K y más códecs.</p>
     <div class="downloads" id="downloads" hidden>
       <h3>Tus descargas</h3>
       <div id="dl-list"></div>
@@ -168,6 +180,13 @@
   <div class="ai-in"><input id="ai-input" placeholder="Pregúntame cómo funciona…"><button class="btn solid" id="ai-send">→</button></div>
 </div>
 
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+<script>
+  setTimeout(function () {
+    var el = document.getElementById("gl-load");
+    if (el && !el.hidden) el.textContent = "La escena 3D no pudo cargar (revisa tu conexión al CDN). El resto de la página funciona con normalidad.";
+  }, 9000);
+</script>
 <script type="module" src="app.js"></script>
 </body>
 </html>
