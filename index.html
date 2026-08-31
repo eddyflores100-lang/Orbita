@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÓRBITA — Property Content Engine · Demo</title>
+<meta name="description" content="Convierte fotos de propiedades en experiencias cinematográficas. Demo interactivo del pipeline completo: IA, director virtual, render, micrositio y analytics.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='none' stroke='%2322d3ee' stroke-width='8'/><circle cx='50' cy='50' r='12' fill='%236366f1'/></svg>">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#top"><span class="brand-dot"></span>ÓRBITA</a>
+    <div class="nav-links">
+      <a href="#demo">Demo</a>
+      <a href="#microsite">Micrositio</a>
+      <a href="#features">Funciones</a>
+      <a href="#roadmap">Roadmap</a>
+      <a class="btn btn-ghost btn-sm" href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="container">
+    <div class="badge"><span class="pulse-dot"></span> DEMO INTERACTIVO · GitHub Pages</div>
+    <h1>Convierte fotos de propiedades en <em>experiencias cinematográficas</em></h1>
+    <p class="hero-sub">ÓRBITA analiza tus fotos con IA, dirige un video con movimientos de cámara virtuales, lo renderiza en MP4 y lo publica en un micrositio con QR y analytics. Prueba aquí el flujo completo, etapa por etapa.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-lg" id="btn-start">▶ Iniciar demo</button>
+      <a class="btn btn-ghost btn-lg" href="#microsite">Ver micrositio</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b data-count="6">0</b><span>etapas del pipeline</span></div>
+      <div class="stat"><b data-count="5">0</b><span>movimientos de cámara</span></div>
+      <div class="stat"><b>9:16 / 16:9</b><span>formatos verticales y horizontales</span></div>
+      <div class="stat"><b data-count="4">0</b><span>K de resolución máxima</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ══════════ PIPELINE DEMO ══════════ -->
+  <section class="section" id="demo">
+    <div class="container">
+      <h2>El pipeline en acción</h2>
+      <p class="section-sub">Así funciona ÓRBITA de punta a punta. Pulsa <b>Iniciar demo</b> y observa cómo cada etapa transforma las fotos en un producto publicable.</p>
+
+      <div class="demo-grid">
+        <ol class="steps" id="steps">
+          <li data-stage="0" class="step"><i class="step-ico">○</i><div><b>1 · Ingesta</b><span>Subida multi-foto, dedupe por hash, miniaturas y EXIF</span></div></li>
+          <li data-stage="1" class="step"><i class="step-ico">○</i><div><b>2 · AI Understanding</b><span>Clasificación de habitaciones + Property Graph</span></div></li>
+          <li data-stage="2" class="step"><i class="step-ico">○</i><div><b>3 · AI Director</b><span>Historia, cámara virtual, música y captions por tono</span></div></li>
+          <li data-stage="3" class="step"><i class="step-ico">○</i><div><b>4 · Render</b><span>Cola → Worker → FFmpeg → MP4</span></div></li>
+          <li data-stage="4" class="step"><i class="step-ico">○</i><div><b>5 · Micrositio + QR</b><span>Página pública con link y código QR</span></div></li>
+          <li data-stage="5" class="step"><i class="step-ico">○</i><div><b>6 · Analytics</b><span>Vistas, únicos, plays, CTA y escaneos</span></div></li>
+        </ol>
+
+        <div class="demo-right">
+          <div class="panel" id="stage-panel"><div class="panel-empty">Pulsa <b>▶ Iniciar demo</b> para comenzar la simulación</div></div>
+          <div class="console" id="console"><div class="console-line muted">— consola del pipeline lista —</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ MICROSITIO ══════════ -->
+  <section class="section section-alt" id="microsite">
+    <div class="container">
+      <h2>Micrositio público — <code>/p/[slug]</code></h2>
+      <p class="section-sub">Cada propiedad genera una página pública lista para compartir por WhatsApp, Instagram o QR en la vidriera. Esto es lo que ve el comprador:</p>
+
+      <div class="phone-wrap">
+        <div class="phone" id="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-head">
+            <div>
+              <div class="phone-title">CASA MODERNA</div>
+              <div class="phone-loc">PALERMO · BUENOS AIRES</div>
+            </div>
+            <div class="phone-price">$185.000</div>
+          </div>
+          <div class="phone-screen" id="phone-screen">
+            <div class="phone-caption" id="phone-caption">Pulsa ▶ Iniciar demo para verlo en vivo</div>
+            <div class="phone-dots" id="phone-dots"></div>
+          </div>
+          <div class="phone-cta">
+            <button class="btn btn-primary btn-block">📅 Agendar visita</button>
+            <button class="btn btn-ghost btn-block">📍 Ver en el mapa</button>
+          </div>
+        </div>
+        <div class="phone-side">
+          <h3>Diseñado para convertir</h3>
+          <p>Reproducción automática estilo stories, captions generados por IA según el tono elegido, y llamados a la acción siempre visibles.</p>
+          <ul class="ticks">
+            <li>Link corto + <b>código QR</b> con registro de escaneos</li>
+            <li>Formato vertical <b>9:16</b>, ideal para móvil</li>
+            <li>Contador de vistas y tiempo de atención por visitante</li>
+            <li>Botón de CTA conectado al agente</li>
+          </ul>
+          <a class="btn btn-ghost" href="#demo">← Volver al pipeline</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FEATURES ══════════ -->
+  <section class="section" id="features">
+    <div class="container">
+      <h2>Qué construye ÓRBITA</h2>
+      <p class="section-sub">Del álbum de fotos del agente al contenido publicable, sin editar un solo clip.</p>
+      <div class="cards">
+        <div class="card"><div class="card-ico">🎬</div><b>AI Director</b><p>Compone una historia con apertura, recorrido y cierre. Elige planos, ritmo y música de una biblioteca curada.</p></div>
+        <div class="card"><div class="card-ico">🎥</div><b>Cámara virtual</b><p>Dolly, Pan, Ken Burns, Parallax y Orbit aplicados con profundidad estimada: movimiento real, no slideshows.</p></div>
+        <div class="card"><div class="card-ico">📐</div><b>Render real</b><p>Cola de trabajos con worker + FFmpeg: MP4 H.264 en 720p a 4K, 24/30 FPS, vertical u horizontal.</p></div>
+        <div class="card"><div class="card-ico">🌐</div><b>Micrositio + QR</b><p>Página pública por propiedad con QR imprimible. Cada escaneo queda registrado en el analytics.</p></div>
+        <div class="card"><div class="card-ico">📊</div><b>Analytics</b><p>Vistas totales y únicas, tiempo de atención, reproducciones, clics en CTA y escaneos QR por propiedad.</p></div>
+        <div class="card"><div class="card-ico">🏢</div><b>Multi-propiedad</b><p>Agencias con varios agentes y portafolios. En construcción: marcas blancas y Brand Kit por agencia.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ ROADMAP ══════════ -->
+  <section class="section section-alt" id="roadmap">
+    <div class="container">
+      <h2>Roadmap por fases</h2>
+      <p class="section-sub">Construcción incremental, fase por fase, siempre con código funcional.</p>
+      <ol class="roadmap">
+        <li class="done"><span class="r-ico">✓</span> AI Property Understanding</li>
+        <li class="done"><span class="r-ico">✓</span> AI Director (historia + cámara virtual)</li>
+        <li class="done"><span class="r-ico">✓</span> Profundidad + movimientos de cámara</li>
+        <li class="done"><span class="r-ico">✓</span> Render real con FFmpeg</li>
+        <li class="done"><span class="r-ico">✓</span> Micrositio público + QR</li>
+        <li class="done"><span class="r-ico">✓</span> Analytics de audiencia</li>
+        <li class="next"><span class="r-ico">→</span> Multi-propiedad / Agencia <em>(próxima)</em></li>
+        <li><span class="r-ico">○</span> Tour espacial WebGL</li>
+        <li><span class="r-ico">○</span> Virtual staging con IA</li>
+        <li><span class="r-ico">○</span> API pública</li>
+      </ol>
+      <p class="note">ℹ️ Esta página es una simulación client-side. El render real se ejecuta con FFmpeg en el servidor — el despliegue a producción (Docker + Railway, ya preparado en el repo) es el siguiente paso.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div><b>ÓRBITA</b> · Property Content Engine</div>
+    <div><a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">github.com/eddyflores100-lang/Orbita</a></div>
+    <div class="muted">Demo v0.1 · Next.js + Prisma + FFmpeg · hecho para agentes inmobiliarios</div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
