@@ -1,1 +1,177 @@
 @import "tailwindcss";
+
+@theme {
+  --color-ink: #0b1411;
+  --color-ink2: #0e1a15;
+  --color-panel: #12201a;
+  --color-panel2: #182a22;
+  --color-line: #23392f;
+  --color-line2: #2e4a3d;
+  --color-paper: #efe9d8;
+  --color-mut: #8ea697;
+  --color-dim: #5f7a6c;
+  --color-amber: #f2a93b;
+  --color-amber2: #ffc46b;
+  --color-coral: #ff6b4a;
+  --color-mint: #5fd9a7;
+  --color-azure: #74b7ff;
+
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --shadow-lift: 0 18px 40px -18px rgb(0 0 0 / 0.65);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink text-paper font-body antialiased;
+  background-image:
+    radial-gradient(900px 500px at 85% -10%, rgb(242 169 59 / 0.07), transparent 60%),
+    radial-gradient(800px 600px at -10% 110%, rgb(95 217 167 / 0.06), transparent 55%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgb(242 169 59 / 0.85);
+  color: #0b1411;
+}
+
+/* ---------- keyframes ---------- */
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(1.2deg); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.95; }
+}
+@keyframes snowfall {
+  0% { transform: translateY(-8vh) translateX(0); }
+  100% { transform: translateY(108vh) translateX(28px); }
+}
+@keyframes fogdrift {
+  0% { transform: translateX(-12%); }
+  100% { transform: translateX(12%); }
+}
+@keyframes shimmer {
+  to { background-position: 200% 0; }
+}
+@keyframes eqbar {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+@keyframes dashmove {
+  to { stroke-dashoffset: -26; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+@keyframes blinkDot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(95 217 167 / 0.5); }
+  50% { opacity: 0.55; box-shadow: 0 0 0 6px rgb(95 217 167 / 0); }
+}
+@keyframes leakPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.12); }
+}
+
+/* ---------- helper classes ---------- */
+.anim-rise {
+  animation: rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.marquee-track {
+  animation: marquee 26s linear infinite;
+}
+.floaty {
+  animation: floaty 7s ease-in-out infinite;
+}
+.spin-slow {
+  animation: spinSlow 26s linear infinite;
+}
+.dash-anim {
+  stroke-dasharray: 7 6;
+  animation: dashmove 1.4s linear infinite;
+}
+.blink-dot {
+  animation: blinkDot 2.2s ease-in-out infinite;
+}
+.eq-bar {
+  transform-origin: bottom;
+  animation: eqbar 0.9s ease-in-out infinite;
+}
+.fog-layer {
+  animation: fogdrift 14s ease-in-out infinite alternate;
+}
+.shimmer-bar {
+  background: linear-gradient(90deg, rgb(95 217 167 / 0.12) 25%, rgb(95 217 167 / 0.5) 50%, rgb(95 217 167 / 0.12) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+.scrollbar-slim::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.scrollbar-slim::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-slim::-webkit-scrollbar-thumb {
+  background: #2e4a3d;
+  border-radius: 99px;
+}
+.scrollbar-slim::-webkit-scrollbar-thumb:hover {
+  background: #f2a93b;
+}
+
+.grid-floor {
+  background-image:
+    linear-gradient(rgb(95 217 167 / 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(95 217 167 / 0.1) 1px, transparent 1px);
+  background-size: 44px 44px;
+  transform: perspective(600px) rotateX(62deg);
+  transform-origin: center bottom;
+  mask-image: linear-gradient(to top, rgb(0 0 0 / 0.9), transparent 85%);
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 99px;
+  background: #2e4a3d;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 99px;
+  background: #f2a93b;
+  border: 2px solid #0b1411;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
