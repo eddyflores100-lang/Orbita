@@ -3,158 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ÓRBITA — Property Content Engine · Demo</title>
-<meta name="description" content="Convierte fotos de propiedades en experiencias cinematográficas. Demo interactivo del pipeline completo: IA, director virtual, render, micrositio y analytics.">
+<title>ÓRBITA — Del link de la propiedad al recorrido 3D</title>
+<meta name="description" content="Pega el link de una propiedad, ÓRBITA descarga las fotos y genera un recorrido 3D interactivo con música creada en el sitio. Exporta en varios formatos.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='none' stroke='%2322d3ee' stroke-width='8'/><circle cx='50' cy='50' r='12' fill='%236366f1'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='%23A05C3B' stroke-width='7'/><circle cx='50' cy='50' r='10' fill='%235B6650'/></svg>">
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
 </head>
 <body>
 
 <nav class="nav">
-  <div class="container nav-inner">
-    <a class="brand" href="#top"><span class="brand-dot"></span>ÓRBITA</a>
+  <div class="wrap nav-in">
+    <a class="brand" href="#top"><span class="dot"></span>ÓRBITA</a>
     <div class="nav-links">
-      <a href="#demo">Demo</a>
-      <a href="#microsite">Micrositio</a>
-      <a href="#features">Funciones</a>
-      <a href="#roadmap">Roadmap</a>
-      <a class="btn btn-ghost btn-sm" href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="#importar">01 · Importar</a>
+      <a href="#recorrido">02 · Recorrido 3D</a>
+      <a href="#musica">03 · Música</a>
+      <a href="#exportar">04 · Exportar</a>
     </div>
   </div>
 </nav>
 
 <header class="hero" id="top">
-  <div class="container">
-    <div class="badge"><span class="pulse-dot"></span> DEMO INTERACTIVO · GitHub Pages</div>
-    <h1>Convierte fotos de propiedades en <em>experiencias cinematográficas</em></h1>
-    <p class="hero-sub">ÓRBITA analiza tus fotos con IA, dirige un video con movimientos de cámara virtuales, lo renderiza en MP4 y lo publica en un micrositio con QR y analytics. Prueba aquí el flujo completo, etapa por etapa.</p>
-    <div class="hero-cta">
-      <button class="btn btn-primary btn-lg" id="btn-start">▶ Iniciar demo</button>
-      <a class="btn btn-ghost btn-lg" href="#microsite">Ver micrositio</a>
-    </div>
-    <div class="hero-stats">
-      <div class="stat"><b data-count="6">0</b><span>etapas del pipeline</span></div>
-      <div class="stat"><b data-count="5">0</b><span>movimientos de cámara</span></div>
-      <div class="stat"><b>9:16 / 16:9</b><span>formatos verticales y horizontales</span></div>
-      <div class="stat"><b data-count="4">0</b><span>K de resolución máxima</span></div>
+  <div class="wrap">
+    <p class="kicker reveal">Property Content Engine</p>
+    <h1 class="reveal">Del link de la propiedad<br><em>al recorrido 3D</em></h1>
+    <p class="sub reveal">Pega el enlace de un aviso inmobiliario: ÓRBITA descarga las fotos, construye un recorrido 3D por el que caminas, compone la música en el sitio y exporta el video en varios formatos.</p>
+    <div class="cta reveal">
+      <a class="btn solid" href="#importar">Pegar link de propiedad</a>
+      <a class="btn line" href="#recorrido">Ver recorrido 3D ↓</a>
     </div>
   </div>
 </header>
 
-<main>
-  <!-- ══════════ PIPELINE DEMO ══════════ -->
-  <section class="section" id="demo">
-    <div class="container">
-      <h2>El pipeline en acción</h2>
-      <p class="section-sub">Así funciona ÓRBITA de punta a punta. Pulsa <b>Iniciar demo</b> y observa cómo cada etapa transforma las fotos en un producto publicable.</p>
+<main class="wrap">
 
-      <div class="demo-grid">
-        <ol class="steps" id="steps">
-          <li data-stage="0" class="step"><i class="step-ico">○</i><div><b>1 · Ingesta</b><span>Subida multi-foto, dedupe por hash, miniaturas y EXIF</span></div></li>
-          <li data-stage="1" class="step"><i class="step-ico">○</i><div><b>2 · AI Understanding</b><span>Clasificación de habitaciones + Property Graph</span></div></li>
-          <li data-stage="2" class="step"><i class="step-ico">○</i><div><b>3 · AI Director</b><span>Historia, cámara virtual, música y captions por tono</span></div></li>
-          <li data-stage="3" class="step"><i class="step-ico">○</i><div><b>4 · Render</b><span>Cola → Worker → FFmpeg → MP4</span></div></li>
-          <li data-stage="4" class="step"><i class="step-ico">○</i><div><b>5 · Micrositio + QR</b><span>Página pública con link y código QR</span></div></li>
-          <li data-stage="5" class="step"><i class="step-ico">○</i><div><b>6 · Analytics</b><span>Vistas, únicos, plays, CTA y escaneos</span></div></li>
-        </ol>
+  <!-- línea conectora de secciones -->
+  <div class="spine" aria-hidden="true"><i></i></div>
 
-        <div class="demo-right">
-          <div class="panel" id="stage-panel"><div class="panel-empty">Pulsa <b>▶ Iniciar demo</b> para comenzar la simulación</div></div>
-          <div class="console" id="console"><div class="console-line muted">— consola del pipeline lista —</div></div>
+  <!-- ══════ 01 IMPORTAR ══════ -->
+  <section class="sec" id="importar">
+    <header class="sec-h reveal"><span class="num">01</span><h2>Importar fotos</h2><span class="rule"></span></header>
+    <p class="sec-sub reveal">Pega el link del aviso y ÓRBITA intenta descargar las fotos automáticamente. Si prefieres control total, arrastra y suelta tus propias imágenes.</p>
+
+    <div class="grid-2">
+      <div class="card reveal">
+        <h3>Pegar link de la propiedad</h3>
+        <p class="hint">Portales inmobiliarios: Zillow, Idealista, Portal Inmobiliario, Mercado Libre, etc.</p>
+        <div class="row">
+          <input id="url-input" type="url" placeholder="https://www.portal.com/aviso/propiedad...">
+          <button class="btn solid" id="btn-fetch">Descargar fotos</button>
         </div>
+        <p class="status" id="fetch-status"></p>
+        <p class="fine">Si un portal bloquea la descarga automática (CORS), en producción el servidor la realiza. También puedes arrastrar las fotos manualmente.</p>
+      </div>
+      <div class="card reveal">
+        <h3>Arrastrar y soltar</h3>
+        <div class="drop" id="drop">
+          <b>Suelta aquí tus fotos</b>
+          <span>JPG, PNG o WebP · varias a la vez</span>
+          <span class="or">— o —</span>
+          <label class="btn line" for="file-input">Elegir archivos</label>
+          <input type="file" id="file-input" accept="image/*" multiple hidden>
+        </div>
+      </div>
+    </div>
+
+    <div class="gal-h reveal"><h3 id="gal-title">Fotos de la propiedad</h3><span class="chip" id="gal-count">0 cargadas</span></div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- ══════ 02 RECORRIDO 3D ══════ -->
+  <section class="sec" id="recorrido">
+    <header class="sec-h reveal"><span class="num">02</span><h2>Recorrido 3D interactivo</h2><span class="rule"></span></header>
+    <p class="sec-sub reveal">Una escena 3D real de la propiedad. En <b>modo libre</b> la orbitas y la exploras con el mouse; en <b>recorrido</b> la cámara camina por el interior: sala, cocina, dormitorio, baño y terraza.</p>
+
+    <div class="stage-card reveal">
+      <div class="stage" id="stage">
+        <canvas id="c3d"></canvas>
+        <div class="stage-cap" id="stage-cap">Modo libre — arrastra para orbitar, rueda para acercar</div>
+        <div class="stage-tourbar" id="tourbar" hidden><i id="tourfill"></i></div>
+        <div class="stage-rec" id="recbadge" hidden><span class="recdot"></span> GRABANDO <b id="rectime">0:00</b></div>
+        <div class="stage-fallback" id="gl-fallback" hidden>Este navegador no pudo iniciar WebGL. Prueba con Chrome o Firefox actualizados.</div>
+      </div>
+      <div class="stage-bar">
+        <button class="btn line on" id="btn-free">Modo libre</button>
+        <button class="btn solid" id="btn-tour">▶ Iniciar recorrido</button>
+        <span class="flex"></span>
+        <button class="btn line" id="btn-shot" title="Exportar fotograma PNG">Fotograma PNG</button>
+      </div>
+    </div>
+    <p class="fine reveal">Tus fotos importadas se colocan como arte enmarcado dentro de la escena. En producción, el render FFmpeg aplica profundidad real a cada foto (parallax + cámara virtual) para generar el MP4.</p>
+  </section>
+
+  <!-- ══════ 03 MÚSICA ══════ -->
+  <section class="sec" id="musica">
+    <header class="sec-h reveal"><span class="num">03</span><h2>Estudio de música</h2><span class="rule"></span></header>
+    <p class="sec-sub reveal">Crea la banda sonora del recorrido aquí mismo: elige un carácter, ajusta el tempo y genera variaciones. Suena en vivo y puedes grabarla para exportarla.</p>
+
+    <div class="card music-card reveal">
+      <div class="music-grid">
+        <div class="m-field"><label>Carácter</label>
+          <div class="seg" id="moods">
+            <button class="on" data-mood="calida">Cálida</button>
+            <button data-mood="elegante">Elegante</button>
+            <button data-mood="natural">Natural</button>
+          </div>
+        </div>
+        <div class="m-field"><label>Tempo · <b id="bpm-v">84</b> BPM</label>
+          <input type="range" id="bpm" min="64" max="120" value="84">
+        </div>
+        <div class="m-field"><label>Percusión suave</label>
+          <button class="switch" id="perc" aria-pressed="false"><i></i></button>
+        </div>
+      </div>
+      <div class="music-actions">
+        <button class="btn solid" id="btn-play">▶ Reproducir</button>
+        <button class="btn line" id="btn-regen">✦ Generar variación</button>
+        <button class="btn line" id="btn-rec-audio">● Grabar tema</button>
+        <span class="status" id="music-status"></span>
       </div>
     </div>
   </section>
 
-  <!-- ══════════ MICROSITIO ══════════ -->
-  <section class="section section-alt" id="microsite">
-    <div class="container">
-      <h2>Micrositio público — <code>/p/[slug]</code></h2>
-      <p class="section-sub">Cada propiedad genera una página pública lista para compartir por WhatsApp, Instagram o QR en la vidriera. Esto es lo que ve el comprador:</p>
+  <!-- ══════ 04 EXPORTAR ══════ -->
+  <section class="sec" id="exportar">
+    <header class="sec-h reveal"><span class="num">04</span><h2>Exportar en varios formatos</h2><span class="rule"></span></header>
+    <p class="sec-sub reveal">Graba el recorrido 3D tal como se ve —con la música si está sonando— y descarga al instante. Elige el formato según dónde lo vas a publicar.</p>
 
-      <div class="phone-wrap">
-        <div class="phone" id="phone">
-          <div class="phone-notch"></div>
-          <div class="phone-head">
-            <div>
-              <div class="phone-title">CASA MODERNA</div>
-              <div class="phone-loc">PALERMO · BUENOS AIRES</div>
-            </div>
-            <div class="phone-price">$185.000</div>
-          </div>
-          <div class="phone-screen" id="phone-screen">
-            <div class="phone-caption" id="phone-caption">Pulsa ▶ Iniciar demo para verlo en vivo</div>
-            <div class="phone-dots" id="phone-dots"></div>
-          </div>
-          <div class="phone-cta">
-            <button class="btn btn-primary btn-block">📅 Agendar visita</button>
-            <button class="btn btn-ghost btn-block">📍 Ver en el mapa</button>
-          </div>
-        </div>
-        <div class="phone-side">
-          <h3>Diseñado para convertir</h3>
-          <p>Reproducción automática estilo stories, captions generados por IA según el tono elegido, y llamados a la acción siempre visibles.</p>
-          <ul class="ticks">
-            <li>Link corto + <b>código QR</b> con registro de escaneos</li>
-            <li>Formato vertical <b>9:16</b>, ideal para móvil</li>
-            <li>Contador de vistas y tiempo de atención por visitante</li>
-            <li>Botón de CTA conectado al agente</li>
-          </ul>
-          <a class="btn btn-ghost" href="#demo">← Volver al pipeline</a>
-        </div>
-      </div>
+    <div class="grid-3">
+      <div class="card fmt reveal"><b>Video 16:9</b><span>1280×720 · horizontal</span><p>Para YouTube, web y presentaciones.</p><button class="btn solid" data-rec="16:9">Grabar recorrido</button></div>
+      <div class="card fmt reveal"><b>Video 9:16</b><span>720×1280 · vertical</span><p>Para Instagram, TikTok y WhatsApp.</p><button class="btn solid" data-rec="9:16">Grabar recorrido</button></div>
+      <div class="card fmt reveal"><b>Video 1:1</b><span>960×960 · cuadrado</span><p>Para feeds y marketplaces.</p><button class="btn solid" data-rec="1:1">Grabar recorrido</button></div>
+    </div>
+    <p class="fine reveal">El video se genera en WebM directamente en tu navegador (imagen + audio). En producción, FFmpeg entrega además MP4 H.264, GIF y resoluciones hasta 4K.</p>
+    <div class="downloads" id="downloads" hidden>
+      <h3>Tus descargas</h3>
+      <div id="dl-list"></div>
     </div>
   </section>
 
-  <!-- ══════════ FEATURES ══════════ -->
-  <section class="section" id="features">
-    <div class="container">
-      <h2>Qué construye ÓRBITA</h2>
-      <p class="section-sub">Del álbum de fotos del agente al contenido publicable, sin editar un solo clip.</p>
-      <div class="cards">
-        <div class="card"><div class="card-ico">🎬</div><b>AI Director</b><p>Compone una historia con apertura, recorrido y cierre. Elige planos, ritmo y música de una biblioteca curada.</p></div>
-        <div class="card"><div class="card-ico">🎥</div><b>Cámara virtual</b><p>Dolly, Pan, Ken Burns, Parallax y Orbit aplicados con profundidad estimada: movimiento real, no slideshows.</p></div>
-        <div class="card"><div class="card-ico">📐</div><b>Render real</b><p>Cola de trabajos con worker + FFmpeg: MP4 H.264 en 720p a 4K, 24/30 FPS, vertical u horizontal.</p></div>
-        <div class="card"><div class="card-ico">🌐</div><b>Micrositio + QR</b><p>Página pública por propiedad con QR imprimible. Cada escaneo queda registrado en el analytics.</p></div>
-        <div class="card"><div class="card-ico">📊</div><b>Analytics</b><p>Vistas totales y únicas, tiempo de atención, reproducciones, clics en CTA y escaneos QR por propiedad.</p></div>
-        <div class="card"><div class="card-ico">🏢</div><b>Multi-propiedad</b><p>Agencias con varios agentes y portafolios. En construcción: marcas blancas y Brand Kit por agencia.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════ ROADMAP ══════════ -->
-  <section class="section section-alt" id="roadmap">
-    <div class="container">
-      <h2>Roadmap por fases</h2>
-      <p class="section-sub">Construcción incremental, fase por fase, siempre con código funcional.</p>
-      <ol class="roadmap">
-        <li class="done"><span class="r-ico">✓</span> AI Property Understanding</li>
-        <li class="done"><span class="r-ico">✓</span> AI Director (historia + cámara virtual)</li>
-        <li class="done"><span class="r-ico">✓</span> Profundidad + movimientos de cámara</li>
-        <li class="done"><span class="r-ico">✓</span> Render real con FFmpeg</li>
-        <li class="done"><span class="r-ico">✓</span> Micrositio público + QR</li>
-        <li class="done"><span class="r-ico">✓</span> Analytics de audiencia</li>
-        <li class="next"><span class="r-ico">→</span> Multi-propiedad / Agencia <em>(próxima)</em></li>
-        <li><span class="r-ico">○</span> Tour espacial WebGL</li>
-        <li><span class="r-ico">○</span> Virtual staging con IA</li>
-        <li><span class="r-ico">○</span> API pública</li>
-      </ol>
-      <p class="note">ℹ️ Esta página es una simulación client-side. El render real se ejecuta con FFmpeg en el servidor — el despliegue a producción (Docker + Railway, ya preparado en el repo) es el siguiente paso.</p>
-    </div>
-  </section>
 </main>
 
-<footer class="footer">
-  <div class="container footer-inner">
-    <div><b>ÓRBITA</b> · Property Content Engine</div>
-    <div><a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">github.com/eddyflores100-lang/Orbita</a></div>
-    <div class="muted">Demo v0.1 · Next.js + Prisma + FFmpeg · hecho para agentes inmobiliarios</div>
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div><b>ÓRBITA</b> — Property Content Engine</div>
+    <a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">github.com/eddyflores100-lang/Orbita</a>
+    <span>Demo en navegador · producción: Next.js + Prisma + FFmpeg</span>
   </div>
 </footer>
 
-<script src="app.js"></script>
+<!-- ══════ ASISTENTE IA ══════ -->
+<button class="ai-fab" id="ai-fab" aria-label="Asistente IA">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9z"/></svg>
+</button>
+<div class="ai-panel" id="ai-panel" hidden>
+  <div class="ai-head"><b>Asistente ÓRBITA</b><button id="ai-close" aria-label="Cerrar">×</button></div>
+  <div class="ai-msgs" id="ai-msgs"></div>
+  <div class="ai-chips" id="ai-chips"></div>
+  <div class="ai-in"><input id="ai-input" placeholder="Pregúntame cómo funciona…"><button class="btn solid" id="ai-send">→</button></div>
+</div>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>
