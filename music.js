@@ -28,6 +28,10 @@ export const GENRES = {
     progs: [[[57, 60, 64, 67], [62, 65, 69, 72], [55, 59, 62, 67], [60, 64, 67, 71]], [[45, 52, 57, 60], [50, 57, 62, 65], [43, 50, 55, 59], [48, 55, 60, 64]]] },
   jazz: { name: "Jazz lounge", bpm: 108, pad: "sine", arp: "triangle", drums: "swing", bass: "walking", swing: 0.12, melodyP: 0.7,
     progs: [[[50, 53, 57, 60], [55, 59, 62, 65], [60, 64, 67, 71], [57, 61, 64, 67]], [[57, 60, 64, 67], [50, 53, 57, 60], [55, 58, 62, 65], [53, 57, 60, 64]]] },
+  house: { name: "House suave", bpm: 122, pad: "sawtooth", arp: "sine", drums: "four", bass: "root", swing: 0, melodyP: 0.6,
+    progs: [[[48, 55, 60, 64], [53, 60, 64, 67], [50, 57, 62, 65], [55, 59, 62, 67]], [[45, 52, 57, 60], [50, 57, 60, 65], [43, 50, 55, 59], [48, 55, 59, 64]]] },
+  ambiente: { name: "Ambiental", bpm: 62, pad: "sine", arp: "sine", drums: "none", bass: "drone", swing: 0, melodyP: 0.18,
+    progs: [[[48, 55, 60, 67], [46, 53, 58, 65], [43, 50, 55, 62], [45, 52, 57, 64]], [[50, 57, 62, 69], [48, 55, 60, 67], [51, 58, 63, 70], [46, 53, 58, 65]]] },
 };
 export const genreNames = () => Object.entries(GENRES).map(([k, g]) => ({ key: k, name: g.name }));
 

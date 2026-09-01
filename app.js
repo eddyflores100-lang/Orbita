@@ -1,10 +1,14 @@
-/* ══════ ÓRBITA · interfaz principal v3 ══════
-   Fotos reales → IA de profundidad + ambiente → plano → recorrido 3D
-   dentro de tus fotos → música multi-género → export multi-formato. */
+/* ══════ ÓRBITA · interfaz principal v4 ══════
+   Fotos reales de la propiedad → análisis local instantáneo
+   (profundidad + ambiente, sin descargas) → plano → recorrido 3D
+   dentro de tus fotos → música multi-género → export multi-formato.
+   Al importar fotos tuyas o de un link, las de ejemplo se eliminan. */
 
-import { ensureModels, modelsReady, analyzeImage, onProgress, ROOM_LABEL } from "./ai.js";
+import { ROOM_LABEL, ROOM_KEYS, classifyImage } from "./analysis.js";
+import { ensureDepthModel, computeDepthFor, isModelReady, modelDevice } from "./depth.js";
+import { importFromUrl } from "./importer.js";
 import { buildPlan } from "./plan.js";
-import { initTour3D, startTour, stopTour, isTouring, setCaptionCb, setProgressCb, setReadyCb, setScenes, scenesReady, getChapters, setFreeRoom, jumpTour, recordTour, recordGIF, exportPNG, download, startRecBadge, videoExt, getStoryboard } from "./tour3d.js";
+import { initTour3D, startTour, stopTour, isTouring, setCaptionCb, setProgressCb, setReadyCb, setScenes, scenesReady, getChapters, setFreeRoom, jumpTour, recordTour, recordGIF, exportPNG, download, startRecBadge, videoExt, getStoryboard, setPresetMode, setDepthParams, presetLabel, setRenderPaused, renderOnce } from "./tour3d.js";
 import * as music from "./music.js";
 
 const $ = (s) => document.querySelector(s);
@@ -16,72 +20,169 @@ $$(".reveal").forEach((el) => io.observe(el));
 
 /* ══════ 01 · IMPORTAR ══════ */
 const PHOTOS = [];
-let photoId = 0;
+let photoId = 0, rebuildTimer = null, analysisBusy = false, depthBusy = false;
 const gallery = $("#gallery"), galCount = $("#gal-count");
-const ROOM_KEYS = Object.keys(ROOM_LABEL);
 
-function addPhoto(src, source = "demo", silent = false) {
-  if (PHOTOS.some((p) => p.src === src)) return;
-  const p = { id: ++photoId, src, source, room: null, conf: 0, depth: null, status: "sin analizar" };
+function debounceRebuild() {
+  clearTimeout(rebuildTimer);
+  rebuildTimer = setTimeout(() => { rebuildPlan(); rebuildTour(); }, 80);
+}
+
+function addPhoto(src, source = "tuyas") {
+  if (PHOTOS.some((p) => p.src === src)) return null;
+  const p = { id: ++photoId, src, source, room: null, conf: 0, depth: null, status: "nueva" };
   PHOTOS.push(p);
   const d = document.createElement("div");
   d.className = "gal-item";
   d.innerHTML = `<img src="${src}" alt="foto de la propiedad" loading="lazy">
     <span class="src">${source}</span>
     <span class="ph-st" data-st>nueva</span>
-    <select class="ph-sel" data-sel title="Corrige el ambiente si la IA se equivocó">
+    <button class="gal-x" data-x title="Quitar esta foto">×</button>
+    <select class="ph-sel" data-sel title="Corrige el ambiente si la estimación falló">
       <option value="">ambiente…</option>
       ${ROOM_KEYS.map((k) => `<option value="${k}">${ROOM_LABEL[k]}</option>`).join("")}
     </select>`;
+  d.querySelector("[data-x]").addEventListener("click", () => removePhoto(p));
   d.querySelector("[data-sel]").addEventListener("change", (e) => {
     const v = e.target.value;
     if (!v) return;
-    p.room = v; p.conf = 1; p.depth = p.depth || null;
-    setStatus(p, "elegido por ti");
-    rebuildPlan(); rebuildTour();
+    p.room = v; p.conf = 1;
+    setStatus(p, "elegido por ti", "ok");
+    debounceRebuild();
   });
   p.el = d;
   gallery.prepend(d);
-  galCount.textContent = `${PHOTOS.length} cargadas`;
-  if (!silent) { if (modelsReady()) analyzePhotos(); }
+  updateCount();
+  analyzePhoto(p); // ambiente instantáneo
+  setTimeout(() => generateDepthAll(), 40); // profundidad IA real en Web Worker (no bloquea)
+  return p;
 }
+
 function setStatus(p, txt, cls = "") {
   p.status = txt;
   const el = p.el && p.el.querySelector("[data-st]");
   if (el) { el.textContent = txt; el.className = "ph-st " + cls; }
 }
 
-const DEMO = [
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=70",
-  "https://images.unsplash.com/photo-1556912167-f556f1f39fdf?auto=format&fit=crop&w=900&q=70",
-  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=70",
-  "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=900&q=70",
-  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=900&q=70",
-];
-DEMO.forEach((src) => addPhoto(src, "demo", true));
+function updateCount() {
+  const d3 = PHOTOS.filter((p) => p.depth).length;
+  galCount.textContent = `${PHOTOS.length} fotos de la propiedad · ${d3} con 3D real`;
+}
 
-/* ── importar por link ── */
+function removePhoto(p) {
+  const i = PHOTOS.indexOf(p);
+  if (i < 0) return;
+  PHOTOS.splice(i, 1);
+  if (p.el) p.el.remove();
+  updateCount();
+  debounceRebuild();
+}
+
+$("#btn-clear-all").addEventListener("click", () => {
+  [...PHOTOS].forEach((p) => { p.el && p.el.remove(); });
+  PHOTOS.length = 0;
+  updateCount();
+  debounceRebuild();
+  aiStatus.textContent = "Galería vacía — importa las fotos de la propiedad para empezar.";
+});
+
+/* ── 1) ambiente instantáneo (sin descargas) ── */
+const aiStatus = $("#ai-status"), aiProg = $("#ai-prog"), aiFill = $("#ai-fill");
+async function analyzePhoto(p) {
+  if (analysisBusy) { setTimeout(() => analyzePhoto(p), 120); return; }
+  analysisBusy = true;
+  if (!p.depth) setStatus(p, "analizando…", "busy");
+  try {
+    const r = await classifyImage(p.src);
+    if (!p.room) {
+      p.room = r.room; p.conf = r.conf;
+      const sel = p.el.querySelector("[data-sel]");
+      if (sel) sel.value = r.room;
+    }
+    setStatus(p, p.depth
+      ? `${ROOM_LABEL[p.room].split(" /")[0]} · 3D ✓`
+      : `${ROOM_LABEL[p.room].split(" /")[0]} · ${Math.round(p.conf * 100)}%`, p.depth ? "ok" : "busy");
+  } catch (e) {
+    if (!p.depth) setStatus(p, "sin análisis", "warn");
+  }
+  analysisBusy = false;
+  debounceRebuild();
+}
+
+/* ── 2) profundidad REAL con Depth Anything V2 (Web Worker, nunca congela) ── */
+function prog(pct, note) {
+  if (pct === null) { if (note) aiStatus.textContent = note; return; }
+  aiProg.hidden = false;
+  aiFill.style.width = (pct * 100).toFixed(0) + "%";
+}
+async function generateDepthAll() {
+  if (depthBusy) return;
+  depthBusy = true;
+  $("#btn-depth").disabled = true;
+  try {
+    const queue = PHOTOS.filter((p) => !p.depth);
+    if (queue.length) {
+      aiStatus.textContent = "Cargando Depth Anything V2 — una sola vez, luego queda en caché. La página sigue fluida: corre en un Web Worker.";
+      await ensureDepthModel(prog);
+      aiProg.hidden = true;
+      let done = 0;
+      for (const p of queue) {
+        if (!PHOTOS.includes(p)) { done++; continue; } // la quitaron mientras tanto
+        setStatus(p, "profundidad IA…", "busy");
+        try {
+          p.depth = await computeDepthFor(p);
+          setStatus(p, `${p.room ? ROOM_LABEL[p.room].split(" /")[0] : "Espacio"} · 3D ✓`, "ok");
+        } catch (err) {
+          setStatus(p, "3D falló", "warn");
+        }
+        done++;
+        updateCount();
+        aiStatus.textContent = `Profundidad real ${done}/${queue.length} — Depth Anything V2 convierte cada foto en geometría 3D.`;
+      }
+    }
+    const ok = PHOTOS.filter((p) => p.depth).length;
+    if (ok) aiStatus.textContent = `✓ 3D real en ${ok} fotos (${modelDevice().toUpperCase()}). La cámara del recorrido viaja DENTRO de tus fotos.`;
+    else aiStatus.textContent = "Importa fotos de la propiedad y la profundidad 3D se genera sola.";
+  } catch (e) {
+    aiStatus.textContent = "No se pudo cargar la IA de profundidad (" + e.message + "). Verifica tu conexión y pulsa «Generar profundidad 3D» de nuevo.";
+  }
+  $("#btn-depth").disabled = false;
+  depthBusy = false;
+  updateCount();
+  rebuildPlan();
+  rebuildTour();
+}
+$("#btn-depth").addEventListener("click", () => generateDepthAll());
+$("#btn-analyze").addEventListener("click", () => {
+  PHOTOS.forEach((p) => { if (!p.room) analyzePhoto(p); });
+  aiStatus.textContent = "Ambientes recalculados. La profundidad IA se genera sola al importar (o con «Generar profundidad 3D»).";
+});
+
+/* ── importar TODAS las fotos por link ── */
 const urlInput = $("#url-input"), fetchStatus = $("#fetch-status");
+let importing = false;
 $("#btn-fetch").addEventListener("click", async () => {
+  if (importing) return;
   const url = urlInput.value.trim();
   if (!/^https?:\/\/.+/.test(url)) { fetchStatus.textContent = "Pega un enlace válido (https://…)"; return; }
-  fetchStatus.textContent = "Leyendo el aviso y buscando fotos…";
+  importing = true;
+  $("#btn-fetch").disabled = true;
+  aiProg.hidden = false; aiFill.style.width = "0%";
   try {
-    const ctrl = new AbortController();
-    const to = setTimeout(() => ctrl.abort(), 20000);
-    const res = await fetch("https://r.jina.ai/" + url, { signal: ctrl.signal });
-    clearTimeout(to);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const text = await res.text();
-    const urls = [...new Set(text.match(/https?:\/\/[^\s"'()<>]+\.(?:jpg|jpeg|png|webp)/gi) || [])]
-      .filter((u) => !/logo|icon|sprite|avatar|badge|favicon|1x1|pixel/i.test(u))
-      .slice(0, 12);
-    if (!urls.length) { fetchStatus.textContent = "No se encontraron fotos en el enlace. Prueba otro aviso o arrástralas manualmente."; return; }
-    urls.forEach((u) => addPhoto(u, "del link"));
-    fetchStatus.textContent = `✓ ${urls.length} fotos descargadas. ${modelsReady() ? "Analizando con IA…" : "Pulsa “Analizar fotos con IA” para el plano y el 3D."}`;
+    const r = await importFromUrl(url, {
+      onStatus: (s) => (fetchStatus.textContent = s),
+      onProgress: (p) => (aiFill.style.width = (p * 100).toFixed(0) + "%"),
+      onPhoto: (dataUrl) => addPhoto(dataUrl, "del link"),
+      maxPhotos: 60,
+    });
+    fetchStatus.textContent = `✓ ${r.aceptadas} fotos de la propiedad descargadas (${r.encontradas} candidatas). Solo fotos de la propiedad — generando profundidad 3D real…`;
+    aiProg.hidden = true;
   } catch (e) {
-    fetchStatus.textContent = "El portal bloqueó la descarga automática (CORS). En producción el servidor la realiza — mientras tanto, arrastra las fotos.";
+    fetchStatus.textContent = "No se pudieron descargar las fotos (" + e.message + "). Prueba otro enlace o arrastra las fotos al panel de al lado.";
+    aiProg.hidden = true;
   }
+  importing = false;
+  $("#btn-fetch").disabled = false;
 });
 
 /* ── arrastrar y soltar ── */
@@ -91,59 +192,14 @@ const drop = $("#drop"), fileInput = $("#file-input");
 drop.addEventListener("drop", (e) => handleFiles(e.dataTransfer.files));
 fileInput.addEventListener("change", () => handleFiles(fileInput.files));
 function handleFiles(files) {
-  [...files].filter((f) => f.type.startsWith("image/")).forEach((f) => {
+  const imgs = [...files].filter((f) => f.type.startsWith("image/"));
+  if (!imgs.length) return;
+  fetchStatus.textContent = `${imgs.length} fotos de la propiedad añadidas — generando profundidad 3D real…`;
+  imgs.forEach((f) => {
     const r = new FileReader();
     r.onload = () => addPhoto(r.result, "tuyas");
     r.readAsDataURL(f);
   });
-}
-
-/* ── análisis IA (profundidad + ambiente) ── */
-const aiStatus = $("#ai-status"), aiProg = $("#ai-prog"), aiFill = $("#ai-fill"), btnAnalyze = $("#btn-analyze");
-onProgress((p) => {
-  aiProg.hidden = false;
-  aiFill.style.width = (p * 100).toFixed(0) + "%";
-  aiStatus.textContent = `Descargando modelos IA (una sola vez): ${(p * 100).toFixed(0)}%`;
-});
-let analyzing = false;
-btnAnalyze.addEventListener("click", async () => {
-  if (analyzing) return;
-  analyzing = true;
-  btnAnalyze.disabled = true;
-  try {
-    if (!modelsReady()) {
-      aiStatus.textContent = "Preparando modelos de IA…";
-      const t0 = performance.now();
-      await ensureModels();
-      aiProg.hidden = true;
-      aiStatus.textContent = `Modelos listos en ${((performance.now() - t0) / 1000).toFixed(0)} s — quedaron en caché para próximas visitas.`;
-    }
-    await analyzePhotos();
-  } catch (e) {
-    aiStatus.textContent = "No se pudieron cargar los modelos (revisa tu conexión e intenta de nuevo).";
-  }
-  analyzing = false;
-  btnAnalyze.disabled = false;
-});
-
-async function analyzePhotos() {
-  const queue = PHOTOS.filter((p) => !p.room || p.conf < 1);
-  if (!queue.length) { rebuildPlan(); rebuildTour(); return; }
-  for (const p of queue) {
-    setStatus(p, "analizando…", "busy");
-    try {
-      const r = await analyzeImage(p.src);
-      p.depth = r.depth; p.room = r.room; p.conf = r.conf;
-      const sel = p.el.querySelector("[data-sel]");
-      if (sel) sel.value = r.room;
-      setStatus(p, `${ROOM_LABEL[r.room]} · ${Math.round(r.conf * 100)}%`, "ok");
-    } catch (e) {
-      setStatus(p, "sin análisis (CORS)", "warn");
-    }
-  }
-  aiStatus.textContent = `Análisis completo: ${PHOTOS.filter((p) => p.room && p.conf >= 1).length || queue.length} fotos con profundidad y ambiente. Plano y recorrido 3D actualizados.`;
-  rebuildPlan();
-  rebuildTour();
 }
 
 /* ══════ 02 · PLANO ══════ */
@@ -152,13 +208,14 @@ let planSeed = 1, lastPlan = null;
 function rebuildPlan() {
   const withRoom = PHOTOS.filter((p) => p.room);
   if (!withRoom.length) {
-    planBox.innerHTML = `<p class="plan-empty">Analiza tus fotos con IA y el plano aparecerá aquí: ambientes detectados, áreas estimadas y distribución.</p>`;
+    planBox.innerHTML = `<p class="plan-empty">Importa fotos (link o arrastrar) y el plano aparece aquí: ambientes detectados en cada foto, áreas estimadas y distribución.</p>`;
     planMeta.textContent = "";
+    lastPlan = null;
     return;
   }
   lastPlan = buildPlan(withRoom, planSeed);
   planBox.innerHTML = lastPlan.svg;
-  planMeta.textContent = `${lastPlan.spaces.length} espacios · ≈ ${lastPlan.total} m² · basado en ${lastPlan.roomsUsed} fotos analizadas`;
+  planMeta.textContent = `${lastPlan.spaces.length} espacios · ≈ ${lastPlan.total} m² · basado en ${lastPlan.roomsUsed} fotos`;
 }
 $("#btn-plan-regen").addEventListener("click", () => { planSeed = (Math.random() * 1e6) | 0; rebuildPlan(); });
 rebuildPlan();
@@ -196,13 +253,20 @@ setProgressCb((t) => {
 setReadyCb(() => {
   stageEmpty.hidden = true;
   buildChapters();
-  [btnTour, $("#btn-shot"), ...$$("[data-rec]"), $("#btn-gif")].forEach((b) => (b.disabled = false));
+  updateControls();
 });
 
+function updateControls() {
+  const ready = scenesReady();
+  [btnTour, $("#btn-shot"), ...$$("[data-rec]"), $("#btn-gif")].forEach((b) => (b.disabled = !ready));
+}
 function rebuildTour() {
-  const withRoom = PHOTOS.filter((p) => p.room);
-  if (!withRoom.length) return;
-  setScenes(withRoom.map((p) => ({ src: p.src, room: p.room, conf: p.conf, depth: p.depth })));
+  const withDepth = PHOTOS.filter((p) => p.depth);
+  setScenes(withDepth.map((p) => ({ src: p.src, room: p.room, conf: p.conf, depth: p.depth })));
+  if (!withDepth.length) {
+    $$("#chapters button").forEach((b) => b.remove());
+    updateControls();
+  }
 }
 function buildChapters() {
   const row = $("#chapters");
@@ -241,7 +305,24 @@ $("#btn-shot").addEventListener("click", () => {
   exportPNG("orbita-fotograma.png");
   addDownload("PNG", "Fotograma del recorrido por tus fotos", null, "orbita-fotograma.png");
 });
-[btnTour, $("#btn-shot"), ...$$("[data-rec]"), $("#btn-gif")].forEach((b) => (b.disabled = true));
+
+/* ── movimiento de cámara (presets DepthFlow) + ajustes de profundidad ── */
+const presetDefs = [["auto", "Auto"], ["cine", "Cinemático"], ["dolly", "Dolly"], ["orbita", "Orbital"], ["push", "Push"], ["lateral", "Lateral"]];
+const presetBox = $("#presets");
+presetDefs.forEach(([k, name], i) => {
+  const b = document.createElement("button");
+  b.textContent = name;
+  b.dataset.preset = k;
+  if (i === 0) b.classList.add("on");
+  b.addEventListener("click", () => {
+    $$("#presets button").forEach((x) => x.classList.toggle("on", x === b));
+    setPresetMode(k);
+  });
+  presetBox.appendChild(b);
+});
+$("#disp").addEventListener("input", (e) => setDepthParams({ disp: +e.target.value / 100 }));
+$("#flip-d").addEventListener("change", (e) => setDepthParams({ flip: e.target.checked }));
+updateControls();
 
 /* ══════ 04 · MÚSICA ══════ */
 const musicStatus = $("#music-status"), btnPlay = $("#btn-play"), tracksBox = $("#tracks");
@@ -345,7 +426,6 @@ tracksBox.addEventListener("click", async (e) => {
     b.disabled = false;
   }
 });
-$("#perc") && $("#perc").remove();
 
 /* ══════ 05 · EXPORTAR ══════ */
 const dlBox = $("#downloads"), dlList = $("#dl-list");
@@ -398,6 +478,7 @@ $("#btn-gif").addEventListener("click", async () => {
 
 const ROOM_TAGS = Object.fromEntries(Object.entries(ROOM_LABEL).map(([k, v]) => [k, v.split(" /")[0]]));
 $("#btn-site").addEventListener("click", () => {
+  if (!PHOTOS.length) { aiStatus.textContent = "Importa fotos primero."; return; }
   const figs = PHOTOS.map((p, i) =>
     `<figure><img src="${p.src}" alt="Foto ${i + 1} de la propiedad" loading="lazy"><figcaption>${String(i + 1).padStart(2, "0")} · ${p.room ? ROOM_TAGS[p.room] : "Foto " + (i + 1)}${p.area ? " · " + p.area + " m²" : ""}</figcaption></figure>`
   ).join("\n      ");
@@ -406,7 +487,7 @@ $("#btn-site").addEventListener("click", () => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Casa Moderna — Palermo</title>
+<title>Propiedad en venta — galería y recorrido</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#F6F3EC;--ink:#232019;--muted:#7C7668;--line:#E3DCCE;--acc:#A05C3B}
@@ -432,14 +513,14 @@ $("#btn-site").addEventListener("click", () => {
 <div class="w">
   <header>
     <p class="brand">ÓRBITA · MICROSITIO</p>
-    <h1>Casa Moderna — Palermo</h1>
-    <p class="price">USD 185.000</p>
-    <div class="tags"><span>${lastPlan ? lastPlan.spaces.length + " espacios" : PHOTOS.length + " fotos"}</span>${lastPlan ? `<span>≈ ${lastPlan.total} m²</span>` : ""}<span>Terraza</span></div>
+    <h1>Propiedad en venta</h1>
+    <p class="price">Consulta el precio con tu asesor</p>
+    <div class="tags"><span>${PHOTOS.length} fotos de la propiedad</span>${lastPlan ? `<span>${lastPlan.spaces.length} espacios</span><span>≈ ${lastPlan.total} m²</span>` : ""}</div>
   </header>
   <section class="grid">
       ${figs}
   </section>
-  <div class="cta"><a href="mailto:contacto@orbita.app?subject=Visita%20Casa%20Moderna%20Palermo">Agendar visita</a></div>
+  <div class="cta"><a href="mailto:contacto@orbita.app?subject=Visita%20a%20la%20propiedad">Agendar visita</a></div>
 </div>
 <footer>Recorrido y contenido generados con ÓRBITA — Property Content Engine</footer>
 </body>
@@ -452,14 +533,14 @@ $("#btn-json").addEventListener("click", () => {
   const data = {
     producto: "ÓRBITA · storyboard del recorrido",
     generado: new Date().toISOString(),
-    propiedad: { titulo: "Casa Moderna — Palermo", precio: "USD 185.000" },
+    fotos_de_la_propiedad: PHOTOS.length,
     fotos_analizadas: PHOTOS.filter((p) => p.room).length,
     escenas: getStoryboard(),
     plano: lastPlan ? { espacios: lastPlan.spaces, total_m2: lastPlan.total } : null,
     musica: cur ? { tema: cur.name, genero: cur.genreName, bpm: cur.bpm, duracion_s: Math.round(music.trackDuration(cur)) } : null,
     formatos_export: ["Video 16:9 MP4/WebM", "Video 9:16 MP4/WebM", "Video 1:1 MP4/WebM", "GIF", "PNG", "Música WAV/MP3", "Micrositio HTML", "Storyboard JSON"],
   };
-  addDownload("JSON", "Storyboard del recorrido (datos del director IA)", new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), "orbita-storyboard.json");
+  addDownload("JSON", "Storyboard del recorrido (datos del análisis)", new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), "orbita-storyboard.json");
 });
 
 /* ══════ ASISTENTE IA ══════ */
@@ -469,7 +550,7 @@ function aiMsg(txt, who = "bot") {
   m.className = "msg " + who; m.textContent = txt;
   aiMsgs.appendChild(m); aiMsgs.scrollTop = aiMsgs.scrollHeight;
 }
-const CHIPS = ["¿Cómo funciona el análisis IA?", "Generar recorrido 3D", "Crear música", "Formatos de descarga"];
+const CHIPS = ["Importar fotos de un link", "Generar recorrido 3D", "Crear música", "Formatos de descarga"];
 CHIPS.forEach((c) => {
   const b = document.createElement("button"); b.textContent = c;
   b.addEventListener("click", () => handleAsk(c));
@@ -484,20 +565,34 @@ function handleAsk(q) {
   const t = q.toLowerCase();
   setTimeout(() => {
     if (ACTIONS[q]) { aiMsg("Hecho — abriendo eso para ti ahora mismo."); ACTIONS[q](); return; }
-    if (/hola|buenas|hey/.test(t)) return aiMsg("Hola. Soy el asistente de ÓRBITA: importo fotos, analizo con IA, genero el plano y el recorrido 3D, compongo música y exporto. ¿Por dónde empezamos?");
-    if (/ia|analisis|an[aá]lisi|modelo|profundidad|depth|clip/.test(t)) return aiMsg("Cada foto pasa por dos modelos reales ejecutados en tu navegador: Depth Anything estima la profundidad píxel a píxel y CLIP detecta el ambiente (sala, cocina…). Descargan ~90 MB la primera vez y quedan en caché. Con eso se construyen el plano y el 3D.");
-    if (/plano|planta|distribuci|m²|metros/.test(t)) return aiMsg("El plano se genera desde lo que la IA detectó en TUS fotos: cada ambiente detectado se convierte en un espacio con área estimada. Puedes corregir el ambiente de cada foto con el selector de la galería y regenerar la disposición en 02 · Plano.");
-    if (/link|enlace|url|pegar|portal/.test(t)) { aiMsg("Ve a 01 · Importar, pega el link del aviso y pulsa “Descargar fotos”. Luego “Analizar fotos con IA” para el plano y el recorrido. Si el portal bloquea (CORS), arrastra las fotos al panel de al lado."); $("#url-input").focus(); return; }
-    if (/foto|arrastr|soltar|subir|imagen/.test(t)) return aiMsg("Arrastra varias fotos al panel “Arrastrar y soltar” o elige archivos. Todo entra a la galería, se analiza con IA y alimenta el plano y el recorrido 3D.");
-    if (/m[uú]sic|audio|tema|sonido|canci/.test(t)) return aiMsg("En 04 · Música elige entre 8 géneros (lo-fi, bossa, jazz, cine…) y pulsa ✦ Generar tema: cada tema se compone con semilla única, nunca escuchas dos iguales. Descárgalos en WAV sin pérdida o MP3, y suenan incrustados en los videos.");
-    if (/3d|recorrido|video|c[aá]mara|tour|parallax/.test(t)) return aiMsg("El recorrido camina DENTRO de tus fotos: la profundidad estimada por IA se convierte en geometría 3D y la cámara se mueve con parallax real. Usa los capítulos para saltar de ambiente y 05 · Exportar para grabar el video.");
+    if (/hola|buenas|hey/.test(t)) return aiMsg("Hola. Soy el asistente de ÓRBITA: descargo las fotos de la propiedad, las analizo al instante, genero el plano y el recorrido 3D, compongo música y exporto todo. ¿Por dónde empezamos?");
+    if (/an[aá]lisi|profundidad|ambiente|ia\b|modelo/.test(t)) return aiMsg("La profundidad 3D se estima con la IA Depth Anything V2 dentro de un Web Worker: la página nunca se congela y el modelo se descarga una sola vez y queda en caché. Esa profundidad real convierte cada foto en geometría 3D; el tipo de ambiente alimenta el plano. Si la estimación falla, corrige el ambiente con el selector de cada foto.");
+    if (/link|enlace|url|pegar|portal|descarg/.test(t)) return aiMsg("Pega el link del aviso en 01 · Importar y pulsa «Descargar fotos»: leo la página a través de un proxy, extraigo TODAS las fotos de la propiedad (descartando logos e iconos del portal) y genero la profundidad 3D de cada una. Si el portal bloquea los proxies, arrastra las fotos al panel de al lado.");
+    if (/ejemplo|demo|sobran|eliminar|borrar/.test(t)) return aiMsg("La galería solo contiene fotos de la propiedad: no hay ninguna foto de ejemplo. Puedes quitar cualquier foto con su ✕ o vaciar todo con «Borrar todas».");
+    if (/foto|arrastr|soltar|subir|imagen/.test(t)) return aiMsg("Arrastra varias fotos al panel “Arrastrar y soltar” o elige archivos. Solo deben estar las fotos de la propiedad: cada una se analiza al instante y alimenta el plano y el recorrido 3D.");
+    if (/m[uú]sic|audio|tema|sonido|canci/.test(t)) return aiMsg("En 04 · Música hay 10 géneros (lo-fi, bossa, jazz, cine, house, ambiente…) y cada tema se compone con semilla única: nunca escuchas dos iguales. Descárgalos en WAV o MP3 y suenan incrustados en los videos.");
+    if (/3d|recorrido|video|c[aá]mara|tour|parallax/.test(t)) return aiMsg("La cámara virtual viaja DENTRO de tus fotos: la profundidad real (Depth Anything V2) convierte cada imagen en una malla 3D y la cámara se mueve con presets de cine — Dolly, Orbital, Push, Lateral y Cinemático — la misma técnica DepthFlow de los cinematic photos de Google. Arrastra para mirar dentro de la foto, rueda para acercarte, salta con los capítulos y graba el video en 05 · Exportar.");
     if (/descarg|formato|export|mp4|webm|gif|wav|mp3/.test(t)) return aiMsg("Exporto: video MP4 o WebM en 16:9, 9:16 y 1:1 (con música incrustada), GIF animado, fotogramas PNG, música en WAV y MP3, micrositio HTML publicable y storyboard JSON. En producción, FFmpeg añade 4K.");
     if (/precio|costo|plan/.test(t)) return aiMsg("Esta es la demo pública del motor. Los planes y el despliegue productivo se definen con el equipo; el repo está abierto en GitHub.");
-    aiMsg("Buena pregunta. Puedo ayudarte con: importar fotos (link o arrastrar), el análisis IA, el plano, el recorrido 3D, la música y los formatos de descarga. ¿Qué te interesa?");
+    aiMsg("Puedo ayudarte con: importar fotos (link o arrastrar), el análisis, el plano, el recorrido 3D, la música y los formatos de descarga. ¿Qué te interesa?");
   }, 420);
 }
 $("#ai-fab").addEventListener("click", () => { aiPanel.hidden = !aiPanel.hidden; if (!aiPanel.hidden) aiInput.focus(); });
 $("#ai-close").addEventListener("click", () => (aiPanel.hidden = true));
 $("#ai-send").addEventListener("click", () => { const v = aiInput.value.trim(); if (v) { aiInput.value = ""; handleAsk(v); } });
 aiInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { const v = aiInput.value.trim(); if (v) { aiInput.value = ""; handleAsk(v); } } });
-aiMsg("Hola, soy el asistente de ÓRBITA. Todo lo que ves sale de tus fotos: análisis IA, plano, recorrido 3D y música. ¿Empezamos?");
+aiMsg("Hola, soy el asistente de ÓRBITA. Pega el link de una propiedad o suelta sus fotos: todo lo demás (plano, 3D, música) sale de ellas. ¿Empezamos?");
+
+/* ── hooks de prueba (inofensivos en producción) ── */
+window.__orbita = {
+  photos: PHOTOS, add: (u, s) => addPhoto(u, s || "test"),
+  scenesReady, chapters: getChapters,
+  importFromUrl,
+  analyzeAll: () => PHOTOS.forEach((p) => { if (!p.room) analyzePhoto(p); }),
+  generateDepthAll, rebuild: debounceRebuild,
+  setPreset: setPresetMode,
+  depthCount: () => PHOTOS.filter((p) => p.depth).length,
+  presetLabel,
+  pauseRender: setRenderPaused,
+  renderOnce,
+};

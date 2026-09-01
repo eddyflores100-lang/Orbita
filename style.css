@@ -83,13 +83,18 @@ a{color:inherit}
 /* galería */
 .gal-h{display:flex;align-items:center;gap:12px;margin:30px 0 14px}
 .gal-h h3{font-size:1.05rem}
+.gal-h .flex{flex:1}
 .chip{font-size:.74rem;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:3px 12px}
+.btn.sm{padding:7px 14px;font-size:.76rem}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .gal-item{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:var(--sand);animation:pop .5s ease}
 @keyframes pop{from{opacity:0;transform:scale(.94)}}
 .gal-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
 .gal-item:hover img{transform:scale(1.05)}
 .gal-item .src{position:absolute;inset:auto 8px 8px auto;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(253,252,248,.9);border-radius:99px;padding:2px 9px;color:var(--acc-deep)}
+.gal-x{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(35,32,25,.72);color:#FBF9F4;font-size:1rem;line-height:1;cursor:pointer;display:grid;place-items:center;opacity:0;transition:.2s;padding:0}
+.gal-item:hover .gal-x{opacity:1}
+.gal-x:hover{background:#8C2319}
 
 /* escena 3D */
 .stage-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
