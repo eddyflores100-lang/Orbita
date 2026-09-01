@@ -4,12 +4,13 @@
 
 | Qué | URL |
 |---|---|
-| **Repo** | https://github.com/eddyflores100-lang/orbita |
-| **Demo (GitHub Pages)** | https://eddyflores100-lang.github.io/orbita/ |
-| **Video completo 1080p** | https://github.com/eddyflores100-lang/orbita/releases (asset `ORBITA_3D_LaFloresta_1080p.mp4`) |
+| **Repo** | https://github.com/eddyflores100-lang/Orbita |
+| **Demo (GitHub Pages)** | https://eddyflores100-lang.github.io/Orbita/ |
+| **Video completo 1080p** | https://github.com/eddyflores100-lang/Orbita/releases (asset `ORBITA_3D_LaFloresta_1080p.mp4`) |
 
 - Usuario GitHub: **eddyflores100-lang**
-- Repo público: `eddyflores100-lang/orbita`
+- Repo público: `eddyflores100-lang/Orbita`
+- ⚠️ **Pages distingue MAYÚSCULAS/minúsculas**: la URL correcta lleva `Orbita` con O mayúscula (la variante en minúsculas da "Site not found" — fue la causa del "no sirve el link").
 
 ## Ramas
 
@@ -20,7 +21,7 @@
 
 ## Reglas de trabajo (sesiones futuras)
 
-1. **El repo de GitHub es la fuente de verdad.** Antes de trabajar, `git fetch origin && git pull` del clon local (si el sandbox se reinició: `git clone https://github.com/eddyflores100-lang/orbita.git`).
+1. **El repo de GitHub es la fuente de verdad.** Antes de trabajar, `git fetch origin && git pull` del clon local (si el sandbox se reinició: `git clone https://github.com/eddyflores100-lang/Orbita.git`).
 2. El sandbox local (`/home/z/my-project`) es SOLO entorno de prueba — la plataforma sobrescribe su rama `main` con autocommits; NO confiar en su historial. El historial limpio vive en GitHub.
 3. Empujar con: `GITHUB_TOKEN=ghp_xxx bash scripts/github-sync/push-main.sh` (o `push-ghpages.sh`).
 4. El token es un PAT clásico con scope **repo** (y **workflow** si se tocan GitHub Actions). Rotarlo si se expuso en chat.
