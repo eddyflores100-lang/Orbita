@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ÓRBITA — De las fotos de la propiedad al video 3D interactivo</title>
-<meta name="description" content="Pega el link de una propiedad o suelta sus fotos: ÓRBITA descarga TODAS las fotos del aviso (solo fotos de la propiedad), estima la profundidad real con Depth Anything V2 en un Web Worker, convierte cada foto en una malla 3D y la cámara viaja dentro de ellas con presets Dolly/Orbital/Push/Lateral/Cinemático (técnica DepthFlow), dibuja el plano, compone música en 10 géneros y exporta en varios formatos.">
-<meta property="og:title" content="ÓRBITA — De las fotos de la propiedad al video 3D interactivo">
-<meta property="og:description" content="Descarga automática de las fotos del aviso, análisis instantáneo en el navegador, plano, recorrido 3D interactivo con parallax, música única y export multi-formato.">
+<title>ÓRBITA — De las fotos de la propiedad al video 3D REAL</title>
+<meta name="description" content="ÓRBITA convierte fotos reales de una propiedad en escenas 3D REALES (nube de puntos con profundidad métrica, capas LDI y relleno de fondo): la cámara se sumerge y orbita dentro de la escena. Demo en vivo + video renderizado del aviso real de La Floresta, Quito.">
+<meta property="og:title" content="ÓRBITA — fotos de la propiedad → video 3D real">
+<meta property="og:description" content="No es parallax: cada píxel se convierte en un punto 3D con Z métrica. La cámara se sumerge, orbita y revela el fondo detrás de los objetos. Motor LDI (3D Photography, CVPR 2020).">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://eddyflores100-lang.github.io/Orbita/">
+<meta property="og:image" content="poster.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="style5.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='%23A05C3B' stroke-width='7'/><circle cx='50' cy='50' r='10' fill='%235B6650'/></svg>">
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
@@ -26,202 +25,145 @@
   <div class="wrap nav-in">
     <a class="brand" href="#top"><span class="dot"></span>ÓRBITA</a>
     <div class="nav-links">
-      <a href="#importar">01 · Importar</a>
-      <a href="#plano">02 · Plano</a>
-      <a href="#recorrido">03 · Video 3D</a>
-      <a href="#musica">04 · Música</a>
-      <a href="#exportar">05 · Exportar</a>
+      <a href="#motor">El motor</a>
+      <a href="#visor">Pruébalo en vivo</a>
+      <a href="#musica">Música</a>
+      <a href="https://github.com/eddyflores100-lang/orbita" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
   </div>
 </nav>
 
 <header class="hero" id="top">
-  <div class="wrap">
-    <p class="kicker reveal">Property Content Engine</p>
-    <h1 class="reveal">De las fotos de la propiedad<br><em>al video 3D interactivo</em></h1>
-    <p class="sub reveal">Pega el link del aviso: ÓRBITA descarga <b>todas las fotos de la propiedad</b> —solo esas—, estima la profundidad real de cada una con la IA <b>Depth Anything V2</b> (en un Web Worker: sin congelar), convierte cada foto en una <b>malla 3D</b> y mueve una cámara virtual dentro de ellas — técnica DepthFlow, la misma familia que los cinematic photos de Google. Cero fotos de ejemplo.</p>
-    <div class="cta reveal">
-      <a class="btn solid" href="#importar">Pegar link de propiedad</a>
-      <a class="btn line" href="#recorrido">Ver el video 3D ↓</a>
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <span class="badge">Motor 3D real · LDI + inpainting · 3D Photography (CVPR 2020)</span>
+      <h1>De las fotos de la propiedad<br>al <em>video 3D real</em>.</h1>
+      <p class="lead">No es parallax ni un efecto: cada píxel se convierte en un punto 3D con
+      profundidad métrica. La cámara <b>se sumerge</b> en la escena y <b>orbita</b> alrededor de los
+      objetos — que tapan al fondo de verdad — con relleno de lo que queda detrás.</p>
+      <div class="cta-row">
+        <a class="btn solid" href="#visor">Probar con tus fotos</a>
+        <a class="btn ghost" href="https://github.com/eddyflores100-lang/orbita" target="_blank" rel="noopener">Código y app completa ↗</a>
+      </div>
+      <div class="stats">
+        <div><b>9</b><span>fotos reales del aviso demo</span></div>
+        <div><b>41 s</b><span>video 1080p renderizado</span></div>
+        <div><b>100%</b><span>en el navegador · sin servidor</span></div>
+      </div>
     </div>
+    <figure class="hero-video">
+      <video src="la-floresta-3d.mp4" poster="poster.jpg" autoplay muted loop playsinline></video>
+      <figcaption>Render real del motor — <b>Departamento 199 m² · La Floresta, Quito</b> (aviso RE/MAX).
+      <a href="https://github.com/eddyflores100-lang/orbita/releases" target="_blank" rel="noopener">Video completo 41 s en 1080p ↗</a></figcaption>
+    </figure>
   </div>
 </header>
 
-<main class="wrap">
+<section class="section" id="motor">
+  <div class="wrap">
+    <h2>Cómo funciona el <span class="accent">3D real</span></h2>
+    <p class="section-sub">El mismo pipeline del backend (Layered Depth Images) implementado también en tu navegador.</p>
+    <div class="steps">
+      <article class="step">
+        <span class="n">01</span>
+        <h3>Profundidad IA</h3>
+        <p>Depth Anything V2 estima el mapa de profundidad de cada foto en un Web Worker (WebGPU o WASM). El modelo se descarga una vez (~30 MB) y queda en caché.</p>
+      </article>
+      <article class="step">
+        <span class="n">02</span>
+        <h3>Nube de puntos métrica</h3>
+        <p>Cada píxel se convierte en un punto con posición 3D real: los cercanos se abren en perspectiva, los lejanos se comprimen. Profundidad verdadera, no desplazamiento de malla.</p>
+      </article>
+      <article class="step">
+        <span class="n">03</span>
+        <h3>Relleno de fondo</h3>
+        <p>Detrás de cada objeto se generan puntos con el color del fondo vecino (inpainting-lite). Al orbitar se revela el fondo — y no agujeros negros.</p>
+      </article>
+      <article class="step">
+        <span class="n">04</span>
+        <h3>Cámara que viaja</h3>
+        <p>La cámara se sumerge, orbita, barre y sube en grúa DENTRO de la escena, con oclusión por z-buffer: lo cercano tapa lo lejano de verdad. Modo libre con el ratón.</p>
+      </article>
+    </div>
+    <p class="note">Backend de producción: <code>ldi.py</code> + <code>engine3d.py</code> — segmentación por protusión, inpainting de Laplace y renders 1080p con ffmpeg. Ver <a href="https://github.com/eddyflores100-lang/orbita" target="_blank" rel="noopener">repo</a>.</p>
+  </div>
+</section>
 
-  <!-- línea conectora de secciones -->
-  <div class="spine" aria-hidden="true"><i></i></div>
+<section class="section alt" id="visor">
+  <div class="wrap">
+    <h2>Convierte tus fotos <span class="accent">ahora</span></h2>
+    <p class="section-sub">Suelta fotos de una propiedad (o pega el link del aviso) y mira cómo se convierten en escenas 3D reales.</p>
 
-  <!-- ══════ 01 IMPORTAR ══════ -->
-  <section class="sec" id="importar">
-    <header class="sec-h reveal"><span class="num">01</span><h2>Importar fotos de la propiedad</h2><span class="rule"></span></header>
-    <p class="sec-sub reveal">Pega el link del aviso y ÓRBITA descarga todas sus fotos automáticamente (descartando logos, iconos y elementos del portal). ¿Prefieres control total? Arrastra las fotos — al importar, las de ejemplo se eliminan solas.</p>
-
-    <div class="grid-2">
-      <div class="card reveal">
-        <h3>Pegar link de la propiedad</h3>
-        <p class="hint">Portales inmobiliarios: Zillow, Idealista, Portal Inmobiliario, Mercado Libre, etc.</p>
+    <div class="import-grid">
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="file" accept="image/*" multiple hidden>
+        <b>Suelta fotos aquí</b>
+        <span>o</span>
+        <button class="btn ghost small" onclick="document.getElementById('file').click()">Elegir archivos</button>
+      </div>
+      <div class="urlbox">
+        <label>Pega el link del aviso (RE/MAX, MercadoLibre…)</label>
         <div class="row">
-          <input id="url-input" type="url" placeholder="https://www.portal.com/aviso/propiedad...">
-          <button class="btn solid" id="btn-fetch">Descargar fotos</button>
+          <input type="url" id="url" placeholder="https://www.remax.com.ec/…" spellcheck="false">
+          <button class="btn solid small" id="btn-url">Importar</button>
         </div>
-        <p class="status" id="fetch-status"></p>
-        <p class="fine">La página se lee a través de un proxy público; cada imagen se verifica (tamaño y proporción) antes de aceptarla. Si un portal bloquea todo, arrastra las fotos al panel de al lado.</p>
+        <div class="mini" id="import-status">Se leen las imágenes del aviso vía proxies CORS y se verifican una por una.</div>
+        <button class="btn ghost small" id="btn-examples">Fotos de ejemplo reales (9)</button>
       </div>
-      <div class="card reveal">
-        <h3>Arrastrar y soltar</h3>
-        <div class="drop" id="drop">
-          <b>Suelta aquí las fotos de la propiedad</b>
-          <span>JPG, PNG o WebP · varias a la vez</span>
-          <span class="or">— o —</span>
-          <label class="btn line" for="file-input">Elegir archivos</label>
-          <input type="file" id="file-input" accept="image/*" multiple hidden>
+    </div>
+
+    <div class="gallery-row">
+      <div class="gallery" id="gallery"></div>
+      <span class="mini"><b id="count">0</b> fotos</span>
+    </div>
+
+    <div class="viewer-wrap">
+      <div class="viewer" id="viewport"></div>
+      <div class="viewer-bar">
+        <div class="moves">
+          <button data-move="sumergirse">Sumergirse</button>
+          <button data-move="orbita" class="on">Órbita</button>
+          <button data-move="acercar">Acercar</button>
+          <button data-move="barrido">Barrido</button>
+          <button data-move="grua">Grúa</button>
+          <button data-move="libre">Libre</button>
         </div>
-      </div>
-    </div>
-
-    <div class="gal-h reveal">
-      <h3 id="gal-title">Fotos de la propiedad</h3>
-      <span class="chip" id="gal-count">0 cargadas</span>
-      <span class="flex"></span>
-      <button class="btn line sm" id="btn-clear-all" title="Vacía la galería">Borrar todas</button>
-    </div>
-    <div class="gallery" id="gallery"></div>
-
-    <div class="card ai-card reveal">
-      <div class="ai-bar-l">
-        <h3>Profundidad 3D real con IA</h3>
-        <p class="hint"><b>Depth Anything V2</b> estima el mapa de profundidad de cada foto dentro de un <b>Web Worker</b>: la página nunca se congela. Con ese mapa, cada foto se convierte en geometría 3D de verdad — no un efecto 2D. El modelo se descarga una sola vez (~30 MB) y queda en caché. El <b>ambiente</b> detectado (sala, cocina, dormitorio…) alimenta el plano; corrígelo con el selector de cada foto.</p>
-      </div>
-      <div class="ai-bar-r">
-        <button class="btn solid" id="btn-depth">Generar profundidad 3D (IA)</button>
-        <button class="btn line" id="btn-analyze">↻ Recalcular ambientes</button>
-        <div class="ai-prog" id="ai-prog" hidden><i id="ai-fill"></i></div>
-        <p class="status" id="ai-status"></p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════ 02 PLANO ══════ -->
-  <section class="sec" id="plano">
-    <header class="sec-h reveal"><span class="num">02</span><h2>Plano generado desde tus fotos</h2><span class="rule"></span></header>
-    <p class="sec-sub reveal">Los ambientes del plano salen de lo que se detectó en cada una de las fotos de la propiedad. El área es estimada; corrige el ambiente de cualquier foto con el selector de la galería y el plano se redibuja.</p>
-    <div class="card plan-card reveal">
-      <div id="plan-box" class="plan-box"><p class="plan-empty">Importa las fotos de la propiedad y el plano aparecerá aquí.</p></div>
-      <div class="plan-foot">
-        <span class="chip" id="plan-meta"></span>
-        <button class="btn line" id="btn-plan-regen">↻ Regenerar disposición</button>
-      </div>
-    </div>
-  </section>
-  <!-- ══════ 03 RECORRIDO 3D ══════ -->
-  <section class="sec" id="recorrido">
-    <header class="sec-h reveal"><span class="num">03</span><h2>Video 3D interactivo dentro de tus fotos</h2><span class="rule"></span></header>
-    <p class="sec-sub reveal">Técnica DepthFlow: la profundidad real de cada foto (Depth Anything V2) desplaza una malla de ~26.000 vértices y una cámara virtual en perspectiva <b>viaja dentro de la escena</b> — no es un efecto 2D ni un filtro parallax. Cada foto usa un movimiento de cine distinto y las transiciones son fundidos en el propio lienzo (salen en el video grabado).</p>
-
-    <div class="stage-card reveal">
-      <div class="stage" id="stage">
-        <canvas id="c3d"></canvas>
-        <div class="stage-cap" id="stage-cap">Modo libre — arrastra para mirar dentro de la foto, rueda para acercar</div>
-        <div class="stage-chap" id="stage-chap" hidden></div>
-        <div class="stage-load" id="gl-load">Cargando escena 3D…</div>
-        <div class="stage-tourbar" id="tourbar" hidden><i id="tourfill"></i></div>
-        <div class="stage-rec" id="recbadge" hidden><span class="recdot"></span> GRABANDO <b id="rectime">0:00</b></div>
-        <div class="stage-fallback" id="gl-fallback" hidden>Este navegador no pudo iniciar WebGL. Prueba con Chrome o Firefox actualizados.</div>
-        <div class="stage-empty" id="stage-empty">Importa las fotos de la propiedad (sección 01): el 3D se construye con su profundidad real.</div>
-      </div>
-      <div class="stage-bar">
-        <button class="btn line on" id="btn-free">Modo libre</button>
-        <button class="btn solid" id="btn-tour">▶ Iniciar recorrido</button>
-        <span class="flex"></span>
-        <button class="btn line" id="btn-shot" title="Exportar fotograma PNG">Fotograma PNG</button>
-        <label class="sync"><input type="checkbox" id="sync-music" checked><span>Música en el recorrido</span></label>
-      </div>
-      <div class="stage-bar2">
-        <span class="label">Movimiento</span>
-        <div class="seg seg-wrap" id="presets" aria-label="Movimiento de cámara"></div>
-        <span class="label">Profundidad</span>
-        <input type="range" id="disp" min="20" max="110" value="60" title="Intensidad del desplazamiento 3D">
-        <label class="sync"><input type="checkbox" id="flip-d"><span>Invertir</span></label>
-      </div>
-      <div class="chapters" id="chapters" aria-label="Capítulos del recorrido"></div>
-    </div>
-    <p class="fine reveal">Tus fotos → mapa de profundidad real (Depth Anything V2) → malla 3D → cámara virtual con Dolly, Orbital, Push, Lateral y Cinemático. En modo libre, arrastra para mirar dentro de la foto y usa la rueda para acercarte — video 3D interactivo de verdad: tú controlas la cámara. En producción, FFmpeg convierte este mismo recorrido en MP4 hasta 4K.</p>
-  </section>
-
-  <!-- ══════ 04 MÚSICA ══════ -->
-  <section class="sec" id="musica">
-    <header class="sec-h reveal"><span class="num">04</span><h2>Estudio de música</h2><span class="rule"></span></header>
-    <p class="sec-sub reveal">Diez géneros, temas únicos: cada canción se compone con semilla propia (nunca escuchas dos iguales), con estructura real de intro, desarrollo y cierre. Descarga en WAV sin pérdida o MP3 universal.</p>
-
-    <div class="card music-card reveal">
-      <div class="music-grid">
-        <div class="m-field"><label>Género</label>
-          <div class="seg seg-wrap" id="genres"></div>
-        </div>
-        <div class="m-field"><label>Tempo · <b id="bpm-v">84</b> BPM</label>
-          <input type="range" id="bpm" min="60" max="128" value="84">
+        <div class="viewer-meta">
+          <span class="mini" id="pts">— puntos</span>
+          <button class="btn solid small" id="btn-rec">● Grabar video 3D</button>
         </div>
       </div>
-      <div class="music-actions">
-        <button class="btn solid" id="btn-gen">✦ Generar tema</button>
-        <button class="btn line" id="btn-play">▶ Reproducir</button>
-        <span class="status" id="music-status"></span>
+      <div class="mini status-row">
+        <span id="viewer-status">Cargando motor…</span>
+        <span id="depth-status">Iniciando modelo IA…</span>
       </div>
-      <div class="tracks" id="tracks"></div>
+      <div class="mini hint" id="hint-free" style="display:none">Modo libre: <b>arrastra</b> para mirar alrededor · <b>rueda</b> para sumergirte en la escena</div>
+      <div class="mini hint" id="rec-status"></div>
     </div>
-    <p class="fine reveal">La banda sonora viaja incrustada en los videos si está sonando al grabar. WAV 16-bit PCM para edición; MP3 192 kbps para compartir.</p>
-  </section>
+  </div>
+</section>
 
-  <!-- ══════ 05 EXPORTAR ══════ -->
-  <section class="sec" id="exportar">
-    <header class="sec-h reveal"><span class="num">05</span><h2>Exportar en varios formatos</h2><span class="rule"></span></header>
-    <p class="sec-sub reveal">Graba el recorrido 3D tal como se ve —con la música si está sonando— y descarga al instante. Elige el formato según dónde lo vas a publicar.</p>
-
-    <div class="grid-3">
-      <div class="card fmt reveal"><b>Video 16:9</b><span>1280×720 · MP4/WebM</span><p>Para YouTube, web y presentaciones. Graba el recorrido con la música si está sonando.</p><button class="btn solid" data-rec="16:9">Grabar recorrido</button></div>
-      <div class="card fmt reveal"><b>Video 9:16</b><span>720×1280 · MP4/WebM</span><p>Para Instagram, TikTok, Reels y WhatsApp Status.</p><button class="btn solid" data-rec="9:16">Grabar recorrido</button></div>
-      <div class="card fmt reveal"><b>Video 1:1</b><span>960×960 · MP4/WebM</span><p>Para feeds y marketplaces inmobiliarios.</p><button class="btn solid" data-rec="1:1">Grabar recorrido</button></div>
-      <div class="card fmt reveal"><b>GIF animado</b><span>480×270 · loop</span><p>Preview ligero para chats, emails y portales que no aceptan video.</p><button class="btn line" id="btn-gif">Crear GIF</button></div>
-      <div class="card fmt reveal"><b>Micrositio HTML</b><span>1 archivo · publicable</span><p>Página lista para publicar o enviar por WhatsApp: galería de la propiedad, datos y contacto.</p><button class="btn solid" id="btn-site">Generar micrositio</button></div>
-      <div class="card fmt reveal"><b>Storyboard JSON</b><span>datos del recorrido</span><p>Escenas, captions, duración y música para reeditar donde quieras.</p><button class="btn line" id="btn-json">Descargar JSON</button></div>
+<section class="section" id="musica">
+  <div class="wrap narrow">
+    <h2>Banda sonora <span class="accent">original</span></h2>
+    <p class="section-sub">Cada render lleva música propia compuesta por semilla única — nunca dos iguales. Se puede grabar junto al video 3D.</p>
+    <div class="chips" id="genres"></div>
+    <div class="music-row">
+      <button class="btn solid" id="btn-newtrack">✦ Generar tema nuevo</button>
+      <button class="btn ghost" id="btn-stopmusic">■ Parar</button>
     </div>
-    <p class="fine reveal">El video se genera aquí mismo (MP4 si tu navegador lo soporta; WebM en el resto) con imagen y audio. GIF, micrositio y storyboard se crean también en el navegador. En producción, FFmpeg añade 4K y más códecs.</p>
-    <div class="downloads" id="downloads" hidden>
-      <h3>Tus descargas</h3>
-      <div id="dl-list"></div>
-    </div>
-  </section>
+    <ul class="tracks" id="tracks"></ul>
+  </div>
+</section>
 
-</main>
-
-<footer class="foot">
-  <div class="wrap foot-in">
-    <div><b>ÓRBITA</b> — Property Content Engine</div>
-    <a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">github.com/eddyflores100-lang/Orbita</a>
-    <span>Demo en navegador · análisis instantáneo local · producción: Next.js + Prisma + FFmpeg</span>
+<footer class="footer">
+  <div class="wrap footer-in">
+    <span class="brand small"><span class="dot"></span>ÓRBITA</span>
+    <span class="mini">Property Content Engine · demo en GitHub Pages · <a href="https://github.com/eddyflores100-lang/orbita/tree/main" target="_blank" rel="noopener">rama main: app completa</a></span>
+    <span class="mini"><a href="https://github.com/eddyflores100-lang/orbita/releases" target="_blank" rel="noopener">Video 1080p ↗</a> · <a href="https://github.com/eddyflores100-lang/orbita" target="_blank" rel="noopener">Código ↗</a></span>
   </div>
 </footer>
 
-<!-- ══════ ASISTENTE IA ══════ -->
-<button class="ai-fab" id="ai-fab" aria-label="Asistente IA">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/><path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9z"/></svg>
-</button>
-<div class="ai-panel" id="ai-panel" hidden>
-  <div class="ai-head"><b>Asistente ÓRBITA</b><button id="ai-close" aria-label="Cerrar">×</button></div>
-  <div class="ai-msgs" id="ai-msgs"></div>
-  <div class="ai-chips" id="ai-chips"></div>
-  <div class="ai-in"><input id="ai-input" placeholder="Pregúntame cómo funciona…"><button class="btn solid" id="ai-send">→</button></div>
-</div>
-
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
-<script>
-  setTimeout(function () {
-    var el = document.getElementById("gl-load");
-    if (el && !el.hidden) el.textContent = "La escena 3D no pudo cargar (revisa tu conexión al CDN). El resto de la página funciona con normalidad.";
-  }, 9000);
-</script>
 <script type="module" src="app.js"></script>
 </body>
 </html>
