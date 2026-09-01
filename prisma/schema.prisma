@@ -1,0 +1,160 @@
+// BÓVEDA — La memoria de IA que es tuya
+// Servidor tonto: solo guarda blobs cifrados (ct/iv) y metadatos de sobre.
+// El contenido (título, texto, etiquetas, confianza) NUNCA viaja en claro.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Vault {
+  id         String   @id @default(cuid())
+  salt       String // base64 — sal PBKDF2 pública (no secreta)
+  verifier   String // base64 — AES-GCM de texto conocido, prueba de frase correcta
+  verifierIv String // base64 — nonce del verificador
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  memories   Memory[]
+  backups    Backup[]
+}
+
+model Memory {
+  id          String   @id @default(cuid())
+  vaultId     String
+  vault       Vault    @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  ct          String // ciphertext base64 (AES-GCM 256)
+  iv          String // nonce base64 (12 bytes)
+  kind        String   @default("dato") // sobre: dato | preferencia | hecho | proyecto
+  source      String   @default("manual") // sobre: manual | chatgpt | claude | gemini | boveda-format | demo
+  sourceRef   String? // referencia de origen: lote, archivo, app
+  obtainedAt  String? // fecha ISO en que se originó en la app fuente
+  contentHash String? // sha-256 hex del contenido en claro (integridad, calculado en cliente)
+  imported    Boolean  @default(false)
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([vaultId])
+}
+
+// Respaldo de la bóveda: snapshot cifrado de los sobres de memoria.
+// El payload es opaco para el servidor: el cliente cifra la lista completa
+// con su clave maestra (AES-GCM) y la guarda como string JSON.
+model Backup {
+  id        String   @id @default(cuid())
+  vaultId   String
+  vault     Vault    @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  count     Int // nº de memorias en el snapshot
+  note      String? // p. ej. «auto previo a importación»
+  payload   String // JSON cifrado del cliente (opaco)
+  createdAt DateTime @default(now())
+
+  @@index([vaultId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// ÓRBITA — Property Content Engine
+// Una propiedad entra una sola vez → video, tour, micrositio, QR, analytics.
+// ─────────────────────────────────────────────────────────────
+
+model OrbitProperty {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  address         String?
+  tone            String   @default("luxury") // luxury | casual | boutique | family | minimal | investment | vacation | hotel
+  aspect          String   @default("16:9") // 16:9 | 9:16
+  watermarkText   String?
+  watermarkOn     Boolean  @default(false)
+  brandColor      String   @default("#a78bfa")
+  features        String? // JSON array de strings
+  hostName        String?
+  hostPhone       String? // WhatsApp con código país
+  hostEmail       String?
+  ctaText         String   @default("Agendar visita")
+  logline         String? // frase del AI Storytelling
+  musicStyle      String? // cinematic | luxury | upbeat | minimal | warm | corporate
+  bpm             Int?
+  status          String   @default("DRAFT") // DRAFT | ANALYZED | DIRECTED | READY
+  published       Boolean  @default(false)
+  views           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  photos          OrbitPhoto[]
+  plans           OrbitPlan[]
+  jobs            OrbitRenderJob[]
+  events          OrbitEvent[]
+}
+
+model OrbitPhoto {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   OrbitProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  order      Int      @default(0)
+  file       String // ruta relativa del original normalizado
+  thumb      String // ruta relativa del thumbnail
+  width      Int
+  height     Int
+  orientation String  @default("landscape") // landscape | portrait | square
+  hash       String // sha-256 del contenido para dedupe
+  size       Int      @default(0)
+  origin     String   @default("upload") // upload | zip | url
+  room       String? // exterior|entrada|sala|comedor|cocina|bano|dormitorio|terraza|jardin|piscina|garaje|vista|pasillo|oficina|lavanderia
+  roomConf   Float? // 0..1 confianza de la clasificación
+  quality    Float? // 0..1 calidad técnica estimada
+  caption    String?
+  analysis   String? // JSON: objects[], light, depthHints, description
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+model OrbitPlan {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   OrbitProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tone       String
+  format     String   @default("16:9")
+  musicStyle String   @default("cinematic")
+  bpm        Int      @default(90)
+  logline    String?
+  shots      String // JSON Shot[] — {photoId, move, durationMs, caption, depth}
+  source     String   @default("ai") // ai | rules | manual
+  createdAt  DateTime @default(now())
+}
+
+model OrbitRenderJob {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   OrbitProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  planId     String?
+  format     String   @default("16:9")
+  resolution String   @default("1080") // 720 | 1080
+  status     String   @default("QUEUED") // QUEUED | PROCESSING | RENDERING | ENCODING | COMPLETE | FAILED
+  stage      String?
+  progress   Float    @default(0)
+  output     String?
+  thumb      String?
+  durationMs Int?
+  error      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([propertyId])
+}
+
+model OrbitEvent {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   OrbitProperty @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type       String // VIEW | VIDEO_PLAY | CTA | WHATSAPP | SCAN | CONTACT
+  ref        String? // qr | direct | social | ...
+  ua         String?
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+}

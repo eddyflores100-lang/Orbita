@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://forum.solidproject.org/top",
+    "name": "17",
+    "snippet": "Introducing Vault: end-to-end encrypted storage , built into your pod . Solid aimed at beginners is now available! MySolido — a local - first personal data vault ( ...",
+    "host_name": "forum.solidproject.org",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://blog.ldodds.com/2024/03/12/baffled-by-solid",
+    "name": "Confused by SOLID - Lost Boy - Leigh Dodds",
+    "snippet": "Mar 12, 2024 — Solid “Pod” is intended to be a personal data store that will provide you with complete control over data about you, allowing you to authorise ...",
+    "host_name": "blog.ldodds.com",
+    "rank": 1,
+    "date": "Mar 12, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.itpro.com/software/open-source/what-is-the-solid-project-and-what-could-it-mean-for-businesses",
+    "name": "What is the Solid Project and what could it mean for",
+    "snippet": "May 12, 2026 — It intends to give consumers private data ' pods ' that they own and control. All their data – financial, medical, social, etc – goes into it ... Read more",
+    "host_name": "www.itpro.com",
+    "rank": 2,
+    "date": "May 12, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://netcentrix.com/news/solid-technology-the-future-of-data-security",
+    "name": "SOLID: The Future of Data Security?",
+    "snippet": "Apr 17, 2024 — Solid works by enabling users to securely store their data in Personal Online Data Stores (known as Pods ). In a nutshell, Pods act as individual ... Read more",
+    "host_name": "netcentrix.com",
+    "rank": 3,
+    "date": "Apr 17, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://opencommons.org/The_Solid_Protocol",
+    "name": "The Solid Protocol",
+    "snippet": "Dec 13, 2024 — The Solid Protocol, developed by Tim Berners-Lee, is a decentralized web standard that allows users to store and control their personal data in ... Read more",
+    "host_name": "opencommons.org",
+    "rank": 4,
+    "date": "Dec 13, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://tobin.yale.edu/sites/default/files/2022-11/Solid.pdf",
+    "name": "Solid A Revolutionary Approach to Data Ownership and",
+    "snippet": "Pod Providers are responsible for instituting the underlying technology of the data storage , like offering data encryption capability. 6 pages",
+    "host_name": "tobin.yale.edu",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.cmswire.com/digital-experience/what-is-solid-project-a-detailed-exploration",
+    "name": "What Is Solid Project? A Detailed Exploration",
+    "snippet": "Feb 13, 2023 — Solid works by giving users a personal pod , a secure place to store data, including personal information, contacts, photos, documents and more. Read more",
+    "host_name": "www.cmswire.com",
+    "rank": 6,
+    "date": "Feb 13, 2023",
+    "favicon": ""
+  },
+  {
+    "url": "https://solve.mit.edu/solutions/5446",
+    "name": "Solid: Decentralized, Inclusive and User-Centric Digital ID",
+    "snippet": "Jul 23, 2020 — PODs allow you play an active, meaningful and dignified role in the management of your own identity data . PODs are designed using Linked Data , a ... Read more",
+    "host_name": "solve.mit.edu",
+    "rank": 7,
+    "date": "Jul 23, 2020",
+    "favicon": ""
+  }
+]

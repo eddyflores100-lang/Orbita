@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://cloudsecurityalliance.org/blog/2026/02/02/the-agentic-trust-framework-zero-trust-governance-for-ai-agents",
+    "name": "Agentic Trust Framework: Zero Trust for AI Agents",
+    "snippet": "Feb 2, 2026 — ATF's maturity model aligns with AWS's Agentic AI Security Scoping Matrix (November 2025 ), providing a business-accessible framework that maps ... Read more",
+    "host_name": "cloudsecurityalliance.org",
+    "rank": 0,
+    "date": "Feb 2, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://siliconangle.com/2025/09/04/agentic-ai-identity-verification-startup-vouched-gets-17m-build-trust-autonomous-agents",
+    "name": "Agentic AI identity verification startup Vouched gets $17M",
+    "snippet": "Sep 4, 2025 — Vouched gets $17M to build trust in autonomous agents … raising $17 million in a Series A round of funding today from Spring Rock Ventures.",
+    "host_name": "siliconangle.com",
+    "rank": 1,
+    "date": "Sep 4, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://eco.com/support/en/articles/15192005-agent-identity-verification-how-ai-agents-authenticate-purchases-in-2026",
+    "name": "How AI Agents Authenticate Purchases in 2026 | Support - Eco",
+    "snippet": "Jul 16, 2026 — Visa published the protocol in late 2025 as an open standard with Adyen, Cloudflare, and Stripe in the early signatory cohort.",
+    "host_name": "eco.com",
+    "rank": 2,
+    "date": "Jul 16, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://arxiv.org/html/2511.02841v2",
+    "name": "AI Agents with Decentralized Identifiers and Verifiable",
+    "snippet": "Dec 15, 2025 — This article presents a conceptual framework and a prototypical multi- agent system, where each agent is endowed with a self-sovereign digital ...",
+    "host_name": "arxiv.org",
+    "rank": 3,
+    "date": "Dec 15, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.token.security/blog/2025-a-year-of-momentum-and-innovation-for-token-security",
+    "name": "2025: A Year of Momentum and Innovation for Token Security",
+    "snippet": "Jul 23, 2025 — Token Security raised $18M, launched MCP Server for AI Agents , and validated AI identity security as a critical market.",
+    "host_name": "www.token.security",
+    "rank": 4,
+    "date": "Jul 23, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://phala.com/posts/Build-Trustworthy-Fintech-AI-Agents-With-TEE",
+    "name": "Build Trustworthy Fintech AI Agents With TEE",
+    "snippet": "Jun 12, 2025 — Each case demonstrates how TEE technology reshapes the trust model for AI agents in finance, turning theoretical security into practical reality ... Read more",
+    "host_name": "phala.com",
+    "rank": 5,
+    "date": "Jun 12, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.biometricupdate.com/202510/agentic-ai-spurs-investment-but-raises-big-authentication-questions",
+    "name": "Agentic AI spurs investment but raises big authentication",
+    "snippet": "Oct 16, 2025 — over 2.5 billion dollars has been funneled into startups building AI agents so far in 2025 . will fund development of an identity,  ...",
+    "host_name": "www.biometricupdate.com",
+    "rank": 6,
+    "date": "Oct 16, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://news.crunchbase.com/cybersecurity/identity-security-startup-funding-ai-agents-sam-altman-world-orb",
+    "name": "Identity Security Funding Soars Amid Rise Of AI Agents",
+    "snippet": "May 6, 2025 — Another senior startup , 11-year-old Semperis, has pulled in close to $500 million to date, including a $125 million financing last summer at a ... Read more",
+    "host_name": "news.crunchbase.com",
+    "rank": 7,
+    "date": "May 6, 2025",
+    "favicon": ""
+  }
+]

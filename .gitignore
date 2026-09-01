@@ -1,0 +1,88 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+local-*
+.claude
+.z-ai-config
+*.log
+dev.log
+dev.out.log
+test
+prompt
+
+server.log
+# Skills directory
+/skills/
+# ══════ ÓRBITA · artefactos regenerables / grandes (no van al repo) ══════
+# Modelo ONNX 94MB — se auto-descarga de HuggingFace en el primer render
+# (scripts/orbita3d/depth_anything.py::ensure_model) o con scripts/fetch-model.sh
+*.onnx
+public/models3d/*
+!public/models3d/.gitkeep
+
+# Datos y artefactos de render (regenerables)
+/db/*.db
+/db/*.db-journal
+/renders/
+/storage/
+/upload/
+/download/
+/tool-results/
+/qa/
+
+# Pipeline 3D: intermedios del motor (clips, profundidad, logs)
+/scripts/orbita3d/output/
+/scripts/orbita3d/depth/
+/scripts/orbita3d/*.mp4
+/scripts/orbita3d/*.log
+/scripts/orbita3d/*.wav
+!scripts/orbita3d/input/
+!scripts/orbita3d/depth/*_preview.png
+
+# Plataforma sandbox
+/dev.log
+/server-prod.log
+/server.log
+/worklog.md
+/.gh-pages/
+/scripts/github-sync/state/
+/.zscripts

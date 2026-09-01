@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://arxiv.org/html/2605.11032v1",
+    "name": "Portable Agent Memory: A Protocol for Provenance",
+    "snippet": "Together, these three protocols form a complete interoperability layer: tools (MCP), coordination (A2A), and memory (Portable Agent Memory).",
+    "host_name": "arxiv.org",
+    "rank": 0,
+    "date": "May 10, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.newamerica.org/insights/ai-agents-and-memory",
+    "name": "AI Agents and Memory: Privacy and Power in the Model",
+    "snippet": "MCP can make agents technically portable, but without proper portability of context, interoperability alone doesn't dismantle this moat.",
+    "host_name": "www.newamerica.org",
+    "rank": 1,
+    "date": "Nov 5, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/mcp/comments/1tcwxej/agent_memory_protocol_amp_open_spec_for",
+    "name": "Open spec for interoperable AI agent memory on top of MCP",
+    "snippet": "An open specification that defines a clean, standardized interface for persistent memory in MCP-compatible agent systems.",
+    "host_name": "www.reddit.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://universalmemoryprotocol.io",
+    "name": "Universal Memory Protocol",
+    "snippet": "An open standard for agent memory. Universal Memory Protocol standardizes how agents remember - portable knowledge across sessions, agents, and vendors.",
+    "host_name": "universalmemoryprotocol.io",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/edihasaj/universal-memory-protocol",
+    "name": "Universal Memory Protocol (UMP)",
+    "snippet": "Universal Memory Protocol (UMP) - an open standard for agent memory. Portable memory for AI agents. UMP standardizes memory portability.",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "Jul 30, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://atlan.com/know/agent-interoperability-protocols",
+    "name": "Agent Interoperability Protocols: MCP, A2A, OSI Explained",
+    "snippet": "Protocols have no memory. MCP and A2A are stateless communication standards. They do not track what an agent did, what data it accessed, or how ...",
+    "host_name": "atlan.com",
+    "rank": 5,
+    "date": "May 4, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://ftp.cheericca.org/bulletin/398wsFFSbyIK/Ai_Agent_Memory_Vs_Mcp_Model_Context_Protocol_For_Production",
+    "name": "AI AGENT MEMORY VS MCP MODEL CONTEXT",
+    "snippet": "MCP (Model Context Protocol) is an open, framework-agnostic standard built to connect AI agents to external context sources, tools, and data ...",
+    "host_name": "ftp.cheericca.org",
+    "rank": 6,
+    "date": "Aug 6, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://mnemoverse.com/docs/library/agent-memory-interop-gap",
+    "name": "The Missing Layer: No Protocol Says What Agents Know",
+    "snippet": "Agent memory interoperability needs rules for identity, schema, provenance, consistency, and permissions. A2A and MCP do not define them.",
+    "host_name": "mnemoverse.com",
+    "rank": 7,
+    "date": "Jul 12, 2026",
+    "favicon": ""
+  }
+]

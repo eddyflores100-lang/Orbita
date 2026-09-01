@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://c2pa.org",
+    "name": "C2PA | Verifying Media Content Sources",
+    "snippet": "Navigate media literacy with the use of media verification tools. C2PA provides an analysis of media content to ensure digital safety.",
+    "host_name": "c2pa.org",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://arxiv.org/html/2604.24890v1",
+    "name": "Verifying Provenance of Digital Media: Why the C2PA",
+    "snippet": "Apr 23, 2026 — C2PA attaches “content credentials” (Crs ) to digital media. These credentials can describe: who or what created the content (e.g., a camera or ... Read more",
+    "host_name": "arxiv.org",
+    "rank": 1,
+    "date": "Apr 23, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://ai-frontiers.org/articles/ai-content-must-now-carry-a-label-cameras-are-next",
+    "name": "AI Content Must Now Carry a Label. Cameras Are Next.",
+    "snippet": "Aug 13, 2026 — With Content Credentials , outside observers can easily verify that the data and statements were signed by the hardware manufacturer's key. C2PA ...",
+    "host_name": "ai-frontiers.org",
+    "rank": 2,
+    "date": "Aug 13, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.linkedin.com/posts/bobrapp_ai-generated-content-means-trust-must-be-activity-7421220738155610112-HUcX",
+    "name": "Verifiable AI Content: C2PA & Provenance for Trust",
+    "snippet": "AI -generated content means trust must be verifiable, not just a feeling. Digital trust is knowing: Who made this? What changed?",
+    "host_name": "www.linkedin.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/artificial/comments/1q5ll02/content_verification_such_as_c2pa_is_gonna_be_the",
+    "name": "Content verification such as C2PA is gonna be the only",
+    "snippet": "C2PA is essentially a cryptographic proof-of-origin for images and video, it essentially hashes the image and gives it a certificate, proving ...",
+    "host_name": "www.reddit.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://contentauthenticity.org/how-it-works",
+    "name": "How it works",
+    "snippet": "The CAI develops open-source tools for verifiably recording the provenance of any digital media, including content made with generative AI .",
+    "host_name": "contentauthenticity.org",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://contentcredentials.org",
+    "name": "Content Credentials | Verify Media Authenticity",
+    "snippet": "Content Credentials provides media transparency with advanced authenticity detection tools.",
+    "host_name": "contentcredentials.org",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developers.openai.com/api/docs/guides/content-provenance",
+    "name": "Content provenance | OpenAI API",
+    "snippet": "Jul 27, 2026 — Use the Content Provenance API to check whether an image or audio file contains supported OpenAI provenance signals. C2PA Content Credentials.  ...",
+    "host_name": "developers.openai.com",
+    "rank": 7,
+    "date": "Jul 27, 2026",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://auth0.com/blog/ai-agents-are-not-users",
+    "name": "AI Agents Are Not Users: Building an Identity Model",
+    "snippet": "Jun 17, 2026 — Consent happens when a user authorizes an application that uses agents , and the agent identities are created on demand by that application.",
+    "host_name": "auth0.com",
+    "rank": 0,
+    "date": "Jun 17, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.dock.io/post/best-ai-agent-identity-platforms-for-enterprises",
+    "name": "Best AI Agent Identity Platforms for Enterprises in 2026",
+    "snippet": "5 days ago — Compare the best AI agent identity platforms for enterprises, including Truvera, Microsoft, Okta , Auth0 , CyberArk, Descope, and Aembit.",
+    "host_name": "www.dock.io",
+    "rank": 1,
+    "date": "Aug 26, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.okta.com/products/govern-ai-agent-identity",
+    "name": "Okta for AI Agents | Govern Agentic Identity",
+    "snippet": "Okta helps secure AI agents by enforcing the principle of least privilege, which is a critical mitigation for many threats.",
+    "host_name": "www.okta.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.okta.com/blog/ai/agent-security-delegation-chain",
+    "name": "Fix AI Delegation Risks & Session Smuggling",
+    "snippet": "Dec 1, 2025 — AI agent task delegation risks session smuggling . Learn how to fix this critical vulnerability and prevent unauthorized AI actions.",
+    "host_name": "www.okta.com",
+    "rank": 3,
+    "date": "Dec 1, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://aws.amazon.com/marketplace/build-learn/ai-agent-learning-series/agent-identity-access-management",
+    "name": "AI agent identity and access management - AWS - Amazon.com",
+    "snippet": "It acts with delegated authority from the end user , subject to the constraint that it can never exceed the user's own authorization. The orchestrator's IAM role ...",
+    "host_name": "aws.amazon.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://auth0.com/blog/securing-amazon-bedrock-agents-with-auth0-genai-guide",
+    "name": "A Guide to Securing Amazon Bedrock Agents with Auth0",
+    "snippet": "Aug 26, 2025 — Auth0 for AI Agents offers OAuth-based delegation , so your agent can act on behalf of a user to third-party APIs without compromising user ...",
+    "host_name": "auth0.com",
+    "rank": 5,
+    "date": "Aug 26, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.okta.com/identity-101/role-of-ai-in-iam",
+    "name": "The role of AI in IAM: Securing the agentic frontier",
+    "snippet": "Mar 2, 2026 — Delegated authority provides a formal authorization model in which AI agents act on behalf of users through explicit grants rather than ...",
+    "host_name": "www.okta.com",
+    "rank": 6,
+    "date": "Mar 2, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://auth0.com/blog/ai-agent-identity-saas",
+    "name": "AI Agent Identity for SaaS",
+    "snippet": "May 12, 2026 — AI agent identity covers how autonomous software agents authenticate to authorization servers, what permissions they receive, how their secrets ...",
+    "host_name": "auth0.com",
+    "rank": 7,
+    "date": "May 12, 2026",
+    "favicon": ""
+  }
+]

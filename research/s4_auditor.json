@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://montecarlo.ai/blog-llm-as-judge",
+    "name": "LLM-As-Judge: 7 Best Practices & Evaluation Templates",
+    "snippet": "LLM-as-judge is a technique that uses AI to evaluate the fitness of AI outputs. For example, one agent may be prompted to answer customer ...",
+    "host_name": "montecarlo.ai",
+    "rank": 0,
+    "date": "Apr 14, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://arxiv.org/html/2508.02994v1",
+    "name": "The Rise of Agent-as-a-Judge Evaluation for LLMs",
+    "snippet": "An AI judge tuned to medical facts and protocols could serve as an intermediary safety check for LLM outputs before they reach end-users.",
+    "host_name": "arxiv.org",
+    "rank": 1,
+    "date": "Aug 5, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.comet.com/site/blog/llm-as-a-judge",
+    "name": "LLM-as-a-Judge: The Ultimate Guide for AI Developers - Comet",
+    "snippet": "LLM-as-a-judge evaluates AI output quality by using one model to assess another, enabling automated quality checks. This method helps identify ...",
+    "host_name": "www.comet.com",
+    "rank": 2,
+    "date": "Feb 18, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/snowflake/auditing-ai-agents-in-snowflake-part-2-llm-as-a-judge-evaluation-pipelines-5d735e6f76c3",
+    "name": "Auditing AI Agents in Snowflake, Part 2: LLM-as-a-Judge",
+    "snippet": "The LLM-as-a-judge technique solves this: using a separate LLM to evaluate the quality, safety, and accuracy of agent responses.",
+    "host_name": "medium.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://dev.to/aws/how-to-evaluate-ai-agents-llm-as-judge-tutorial-4a6h",
+    "name": "How to Evaluate AI Agents: LLM-as-Judge Tutorial",
+    "snippet": "LLM-as-Judge uses a large language model to score agent outputs against defined criteria, replacing manual review. It provides continuous scores ...",
+    "host_name": "dev.to",
+    "rank": 4,
+    "date": "May 25, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://amplitude.com/explore/product/llm-as-a-judge",
+    "name": "LLM as a Judge Evals: How They Work and When to Trust",
+    "snippet": "An LLM as a judge eval uses a language model to score AI output against a rubric. Here's how LLM judges work, what they get wrong, and when to trust them.",
+    "host_name": "amplitude.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.evidentlyai.com/llm-guide/llm-as-a-judge",
+    "name": "LLM-as-a-judge: a complete guide to using LLMs for",
+    "snippet": "LLM-as-a-Judge is an evaluation method to assess the quality of text outputs from any LLM-powered product, including chatbots, Q&A systems, or agents.",
+    "host_name": "www.evidentlyai.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://data-pilot.com/blog/llm-as-a-judge-how-to-evaluate-ai-systems-in-production",
+    "name": "LLM-as-a-Judge: How to Evaluate AI Systems in Production",
+    "snippet": "Explore how LLM as a Judge is transforming AI evaluation: automating assessments, scaling insights, and achieving human-level agreement ...",
+    "host_name": "data-pilot.com",
+    "rank": 7,
+    "date": "Feb 24, 2026",
+    "favicon": ""
+  }
+]

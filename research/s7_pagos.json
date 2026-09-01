@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol",
+    "name": "Announcing Agent Payments Protocol (AP2)",
+    "snippet": "Sep 16, 2025 — With Agent Payments Protocol ( AP2 ) and x402 , MetaMask will deliver maximum interoperability for developers and will enable users to pay agents ...",
+    "host_name": "cloud.google.com",
+    "rank": 0,
+    "date": "Sep 16, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://ap2-protocol.org",
+    "name": "AP2 - Agent Payments Protocol Documentation",
+    "snippet": "Sep 16, 2025 — The Agent Payments Protocol (AP2 ) is a solution for enabling gen AI agents to make payments on behalf of users, safely, securely, ...",
+    "host_name": "ap2-protocol.org",
+    "rank": 1,
+    "date": "Sep 16, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://orium.com/blog/agentic-payments-acp-ap2-x402",
+    "name": "Agentic Payments Explained: ACP, AP2, and x402",
+    "snippet": "Sep 29, 2025 — These protocols define how an AI agent can securely authorize, execute, and record a payment on behalf of a user or an organization.",
+    "host_name": "orium.com",
+    "rank": 2,
+    "date": "Sep 29, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/@gwrx2005/ai-agents-and-autonomous-payments-a-comparative-study-of-x402-and-ap2-protocols-e71b572d9838",
+    "name": "A Comparative Study of x402 and AP2 Protocols",
+    "snippet": "This paper provides a comprehensive overview of the need for AI-native payment protocols and examines two prominent approaches introduced in ... Read more",
+    "host_name": "medium.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://agentpaymentsprotocol.info",
+    "name": "Agent Payments Protocol (AP2)",
+    "snippet": "Agent Payments Protocol (AP2 ) is an open protocol for the emerging Agent Economy. It enables secure, reliable, and interoperable agent commerce",
+    "host_name": "agentpaymentsprotocol.info",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.linkedin.com/posts/carrie-tharp_ai-driven-commerce-offers-new-ways-to-discover-activity-7373866139333877760-UFDG",
+    "name": "Introducing Agent Payments Protocol (AP2) for secure AI",
+    "snippet": "The new Agent Payments Protocol (AP2 ) is set to revolutionize AI-driven commerce. This open protocol fosters secure transactions & unlocks ... Read more",
+    "host_name": "www.linkedin.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.constellationr.com/insights/news/googles-agent-payments-protocol-fleshes-out-ai-agent-commerce",
+    "name": "Google's Agent Payments Protocol fleshes out AI",
+    "snippet": "Google launched the Agent Payments Protocol (AP2 ) in a move that will flesh out how AI agents will handle commerce and transactions.",
+    "host_name": "www.constellationr.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.crossmint.com/learn/agentic-payments-protocols-compared",
+    "name": "Which is best for your AI agents? (MPP, ACP, AP2, x402)",
+    "snippet": "Mar 12, 2026 — AP2 ( Agent Payments Protocol ), developed by Google defines the trust and authorization layer for agent -led payments using cryptographically",
+    "host_name": "www.crossmint.com",
+    "rank": 7,
+    "date": "Mar 12, 2026",
+    "favicon": ""
+  }
+]

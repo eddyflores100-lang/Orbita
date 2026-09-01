@@ -1,0 +1,65 @@
+[
+  {
+    "url": "https://e2b.dev",
+    "name": "E2B | The Enterprise AI Agent Cloud",
+    "snippet": "E2B Gives AI Agents Secure Computers with Real-World Tools. Use a sandbox as a code runtime for AI-generated apps . Supports any language and framework. to ...",
+    "host_name": "e2b.dev",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.firecrawl.dev/blog/ai-agent-sandbox",
+    "name": "AI Agent Sandbox: How to Safely Run Autonomous",
+    "snippet": "Mar 18, 2026 — An AI agent sandbox is an isolated execution environment where an agent can take actions without those actions affecting the host system.",
+    "host_name": "www.firecrawl.dev",
+    "rank": 1,
+    "date": "Mar 18, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://e2b.dev/startups",
+    "name": "E2B for Startups",
+    "snippet": "E2B is an open-source runtime for executing AI-generated code in secure cloud sandboxes . Made for agentic & AI use cases. AI data analysis, evals, Great for  ...",
+    "host_name": "e2b.dev",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.walturn.com/insights/testing-ai-in-sandboxes",
+    "name": "Testing AI in Sandboxes",
+    "snippet": "Feb 13, 2025 — E2B is an open-source runtime designed for executing AI -generated code in secure cloud sandboxes . Tailored for agentic and AI use cases, E2B is ...",
+    "host_name": "www.walturn.com",
+    "rank": 3,
+    "date": "Feb 13, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://jrodthoughts.medium.com/every-agent-needs-a-computer-the-agent-sandbox-economy-web3-ai-opportunity-9fb3e8e3a4b3",
+    "name": "Every Agent Needs a Computer: The Agent Sandbox",
+    "snippet": "An agentic sandbox is a secure, isolated, programmable computing environment where an AI agent can execute actions without exposing the user's ... Read more",
+    "host_name": "jrodthoughts.medium.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://pub.towardsai.net/e2b-vs-daytona-vs-modal-vs-docker-how-ai-agent-sandboxes-actually-differ-bd1ea9bb3333",
+    "name": "E2B vs Daytona vs Modal vs Docker",
+    "snippet": "Aug 17, 2026 — E2B is built around one job: give an agent a full, disposable computer, fast. Each sandbox runs as a Firecracker microVM with its own guest ... Read more",
+    "host_name": "pub.towardsai.net",
+    "rank": 5,
+    "date": "Aug 17, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.softwareseni.com/e2b-daytona-modal-and-sprites-dev-choosing-the-right-ai-agent-sandbox-platform",
+    "name": "E2B, Daytona, Modal, and Sprites.dev - Choosing the Right AI",
+    "snippet": "Jan 29, 2026 — E2B offers experimental BYOC for AWS, GCP, Azure . Good for testing compliance feasibility. Northflank is recommended for production BYOC. Read more",
+    "host_name": "www.softwareseni.com",
+    "rank": 6,
+    "date": "Jan 29, 2026",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,24 @@
+[
+ {
+  "id": "g1",
+  "title": "Ideas de negocio",
+  "created_at": "2026-03-20T20:00:00Z",
+  "messages": [
+   {
+    "role": "user",
+    "content": "Trabajo en marketing pero estoy construyendo un micro-SaaS de facturación para freelancers.",
+    "created_at": "2026-03-20T20:00:00Z"
+   },
+   {
+    "role": "assistant",
+    "content": "Interesante. ¿Qué problema principal quieres resolver?",
+    "created_at": "2026-03-20T20:01:00Z"
+   },
+   {
+    "role": "user",
+    "content": "Mi zona horaria es UTC-5 y trabajo en las noches. Hablo español e inglés.",
+    "created_at": "2026-03-20T20:02:00Z"
+   }
+  ]
+ }
+]

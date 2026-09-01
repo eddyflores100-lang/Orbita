@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://forum.letta.com/t/agent-memory-letta-vs-mem0-vs-zep-vs-cognee/88",
+    "name": "Agent memory: Letta vs Mem0 vs Zep vs Cognee",
+    "snippet": "Oct 29, 2025 — This article explains how agent memory works and compares five popular solutions to the problem: Mem0, Zep, Cognee, Letta Platform , and AI ...",
+    "host_name": "forum.letta.com",
+    "rank": 0,
+    "date": "Oct 29, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/LocalLLaMA/comments/1mon8it/woah_letta_vs_mem0_for_ai_memory_nerds",
+    "name": "Woah. Letta vs Mem0. (For AI memory nerds) : r/LocalLLaMA",
+    "snippet": "Mem0 published marketing disguised as research . Letta called it out. Zep published their own correction showing they beat Mem0 by 24%. Read more",
+    "host_name": "www.reddit.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.letta.com/blog/benchmarking-ai-agent-memory",
+    "name": "Benchmarking AI Agent Memory: Is a Filesystem All You",
+    "snippet": "Aug 12, 2025 — Letta Filesystem scores 74.0% on the LoCoMo benchmark by simply storing conversational histories in a file, beating out specialized memory ...",
+    "host_name": "www.letta.com",
+    "rank": 2,
+    "date": "Aug 12, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.digitalapplied.com/blog/open-source-agent-memory-mem0-letta-zep-compared",
+    "name": "Open-Source Agent Memory: Mem0 vs Letta vs Zep",
+    "snippet": "Aug 4, 2026 — Mem0, Letta (formerly MemGPT) and Zep's Graphiti are the three most-starred, most-referenced standalone open-source agent-memory projects, and ... Read more",
+    "host_name": "www.digitalapplied.com",
+    "rank": 3,
+    "date": "Aug 4, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://mem0.ai",
+    "name": "Mem0 - AI Memory Layer for your Agents & Apps | Persistent",
+    "snippet": "Mem0 gives agents persistent memory without pipeline changes. Less redundant context, lower token costs, measurably faster responses. Read more",
+    "host_name": "mem0.ai",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/@wasowski.jarek/i-compared-5-ai-agent-memory-systems-across-6-dimensions-none-wins-6a658335ed0a",
+    "name": "AI Agent Memory 2026 — Comparing Mem0, Zep, Graphiti",
+    "snippet": "Mem0 works mainly at L1 with elements of L2 , Letta reaches L3 through Skill Learning, Zep maintains L0 and L1 simultaneously. No production ... Read more",
+    "host_name": "medium.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.spheron.network/blog/agent-memory-gpu-cloud-mem0-zep-guide",
+    "name": "Agent Memory Infrastructure on GPU Cloud: Deploy Mem0",
+    "snippet": "Apr 24, 2026 — This post focuses on the memory tier specifically: what Mem0 , Zep , and Letta actually need from your GPU, and how to deploy them on Spheron.",
+    "host_name": "www.spheron.network",
+    "rank": 6,
+    "date": "Apr 24, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.puppyone.ai/en/blog/best-ai-agent-memory-platforms",
+    "name": "Best AI Agent Memory Platforms 2026: Mem0 vs Zep vs Letta",
+    "snippet": "Apr 21, 2026 — Compare the best AI agent memory platforms in 2026: Mem0, Zep, Letta , LangMem, Cloudflare, and Redis—plus governance, storage, and rollback.",
+    "host_name": "www.puppyone.ai",
+    "rank": 7,
+    "date": "Apr 21, 2026",
+    "favicon": ""
+  }
+]

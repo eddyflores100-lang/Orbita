@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @page { size: 794px 1123px; margin: 0; }
+    :root {
+      --c-bg: #0a1628;
+      --c-accent: #4da8da;
+      --c-text: #e8f0f8;
+      --c-muted: #7a9bb8;
+      --c-glow: #2d7ab3;
+    }
+    html, body {
+      margin: 0; padding: 0;
+      width: 794px; height: 1123px;
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: 'Inter', sans-serif;
+    }
+    @media screen {
+      html { height: auto; display: flex; justify-content: center; min-height: 100vh; background: var(--c-bg); }
+      body { transform-origin: top center; scale: min(1, calc(100vw / 794), calc(100vh / 1123)); margin: 0 auto; box-shadow: 0 0 60px rgba(0,0,0,0.4); }
+    }
+    .cover { width: 794px; height: 1123px; position: relative; box-sizing: border-box;
+             border: none; outline: none; box-shadow: none; }
+
+    /* Layer 1 - fondo: glows radiales (clip obligatorio solo aqui) */
+    .layer1 { position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+    .glow-a {
+      position: absolute; left: 0; top: 0; width: 420px; height: 420px;
+      background: radial-gradient(circle at 30% 30%, rgba(45,122,179,0.16) 0%, rgba(45,122,179,0) 68%);
+    }
+    .glow-b {
+      position: absolute; right: 0; bottom: 0; width: 480px; height: 480px;
+      background: radial-gradient(circle at 70% 70%, rgba(45,122,179,0.13) 0%, rgba(45,122,179,0) 66%);
+    }
+
+    /* Layer 2 - estructura: marco luminoso */
+    .layer2 { position: absolute; inset: 0; z-index: 2; }
+    .frame {
+      position: absolute; left: 60px; right: 60px; top: 80px; bottom: 80px;
+      border: 2px solid var(--c-accent);
+    }
+
+    /* Layer 3 - contenido */
+    .layer3 { position: absolute; inset: 0; z-index: 3; }
+    .kicker {
+      position: absolute; left: 105px; top: 135px;
+      font-size: 11pt; font-weight: 300; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--c-accent);
+      font-family: 'Inter', sans-serif;
+    }
+    .hero {
+      position: absolute; left: 105px; top: 236px;
+      font-size: 46pt; font-weight: 900; line-height: 1.15;
+      font-family: 'Playfair Display', serif;
+      color: var(--c-text); max-width: 580px;
+      text-shadow: 0 0 26px rgba(77,168,218,0.28);
+    }
+    .summary {
+      position: absolute; left: 105px; top: 505px;
+      font-size: 15pt; font-weight: 300; line-height: 1.7;
+      color: var(--c-muted); max-width: 520px;
+    }
+    .org {
+      position: absolute; left: 105px; top: 745px;
+      font-size: 17pt; font-weight: 500; color: var(--c-text);
+    }
+    .org-sub {
+      position: absolute; left: 105px; top: 785px;
+      font-size: 11pt; font-weight: 300; color: var(--c-muted);
+      letter-spacing: 1px;
+    }
+    .date {
+      position: absolute; left: 105px; top: 985px;
+      font-size: 10pt; font-weight: 300; color: var(--c-muted);
+      letter-spacing: 3px; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <div class="layer1">
+      <div class="glow-a"></div>
+      <div class="glow-b"></div>
+    </div>
+    <div class="layer2">
+      <div class="frame"></div>
+    </div>
+    <div class="layer3">
+      <div class="kicker">Informe de revisión estratégica · MR-07</div>
+      <div class="hero">Cuello de<br>Botella 2030</div>
+      <div class="summary">
+        Pros y contras del memorándum, panorama competitivo real idea por idea,
+        auditoría técnica del código y dos rutas de implementación con calendario:
+        publicar el sitio en seis semanas y construir el protocolo TESTIGO en doce meses.
+      </div>
+      <div class="org">Preparado para el fundador</div>
+      <div class="org-sub">Análisis interno · documento de trabajo</div>
+      <div class="date">Agosto 2026 · Revisión v1</div>
+    </div>
+  </div>
+</body>
+</html>

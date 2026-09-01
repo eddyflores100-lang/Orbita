@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.getzep.com",
+    "name": "Agent memory at enterprise scale — Zep",
+    "snippet": "Zep gives AI agents enterprise-grade memory via context graphs — sub-200ms retrieval, SOC 2 compliant, validated by S&P Market Intelligence.",
+    "host_name": "www.getzep.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://akkonrad.medium.com/knowledge-graphs-arent-databases-anymore-they-re-the-memory-layer-for-ai-agents-d090c03eb58c",
+    "name": "Knowledge Graphs Aren't Databases Anymore — They're the",
+    "snippet": "Zep's Graphiti is probably the most interesting development in the agent memory space right now. Potpie raised $2.2M in pre-seed funding ( ...",
+    "host_name": "akkonrad.medium.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://mnemoverse.com/docs/library/ai-memory-solutions-2026-q3",
+    "name": "Mem0 vs Zep vs Letta vs Cognee vs Supermemory (Q3 2026)",
+    "snippet": "Jul 21, 2026 — Five funded systems — Mem0, Letta , Zep / Graphiti , Cognee, and Supermemory … held 23,887 stars as of a 10 million seed a reported $70 million ...",
+    "host_name": "mnemoverse.com",
+    "rank": 2,
+    "date": "Jul 21, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.developersdigest.tech/blog/best-ai-agent-memory-providers-2026",
+    "name": "Best AI Agent Memory Providers in 2026: Mem0 vs Zep vs",
+    "snippet": "Jul 2, 2026 — Letta are directly open source and self-hostable , and Zep's memory engine Graphiti is Apache 2.0 and self-hosts on a graph database. For ...",
+    "host_name": "www.developersdigest.tech",
+    "rank": 3,
+    "date": "Jul 2, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/getzep/graphiti",
+    "name": "getzep/graphiti: Build Real-Time Knowledge Graphs for AI",
+    "snippet": "Zep Memory section (#260) Graphiti is a framework for building and querying temporal context graphs for AI agents . purpose-built for agents operating on ...",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.hpcwire.com/bigdatawire/this-just-in/letta-emerges-from-stealth-with-10m-to-build-ai-agents-with-advanced-memory",
+    "name": "Letta Emerges from Stealth with $10M to Build AI Agents",
+    "snippet": "Sep 26, 2024 — Letta, a new generative AI startup … with a $10 million seed round. Letta plans to use the funding to continue building a new hosted product,  ...",
+    "host_name": "www.hpcwire.com",
+    "rank": 5,
+    "date": "Sep 26, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.ycombinator.com/companies/zep-ai",
+    "name": "Zep AI: Agent Context Is Hard. We Fixed It.",
+    "snippet": "Zep assembles the right context from chat history, business data, and user behavior so agents are personalized, accurate, and fast. Read more",
+    "host_name": "www.ycombinator.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://startupintros.com/orgs/zep-ai",
+    "name": "Zep AI: Funding, Team & Investors",
+    "snippet": "Jul 13, 2026 — Zep AI has raised $500K across 1 funding round. Most recently, it raised $500K Seed in March 2024. Raised. $500K. 1 funding round ... Read more",
+    "host_name": "startupintros.com",
+    "rank": 7,
+    "date": "Jul 13, 2026",
+    "favicon": ""
+  }
+]
