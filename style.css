@@ -135,3 +135,10 @@ code { background: var(--panel); border: 1px solid var(--line); padding: 1px 6px
   .steps { grid-template-columns: 1fr; }
   .stats { gap: 20px; }
 }
+
+/* ── sección vertical 9:16 ── */
+.vertical-grid { display: grid; grid-template-columns: minmax(240px, 340px) 1fr; gap: 28px; align-items: start; }
+.vertical-video { margin: 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(160,92,59,.35); background: #0d0b09; }
+.vertical-video video { display: block; width: 100%; aspect-ratio: 9/16; }
+.vertical-video figcaption { padding: 10px 14px; font-size: 13px; color: var(--muted, #b7ad9e); }
+@media (max-width: 760px) { .vertical-grid { grid-template-columns: 1fr; } }
