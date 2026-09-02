@@ -22,12 +22,14 @@ export async function POST(req: Request, ctx: Ctx) {
 
   let planId: string | null = null;
   let resolution = "720";
+  let quality = "quality";
   try {
-    const body = (await req.json()) as { planId?: string; resolution?: string };
+    const body = (await req.json()) as { planId?: string; resolution?: string; quality?: string };
     planId = body.planId ?? null;
     if (body.resolution && (RESOLUTIONS as readonly string[]).includes(body.resolution)) {
       resolution = body.resolution;
     }
+    if (body.quality === "speed" || body.quality === "quality") quality = body.quality;
   } catch {
     /* body opcional */
   }
@@ -48,7 +50,7 @@ export async function POST(req: Request, ctx: Ctx) {
   }
 
   const job = await db.orbitRenderJob.create({
-    data: { propertyId: id, planId, format: property.aspect, resolution, status: "QUEUED", stage: "En cola" },
+    data: { propertyId: id, planId, format: property.aspect, resolution, quality, status: "QUEUED", stage: "En cola" },
   });
   enqueueRender(job.id);
   return NextResponse.json({ job });

@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { randomUUID } from "crypto";
 import { unzipSync } from "fflate";
+import { mkdir, writeFile, rm } from "fs/promises";
+import os from "os";
+import path from "path";
 import {
   ingestPhotoBuffer,
   isImageName,
   fetchImageFromUrl,
   extractImagesFromPage,
+  looksLikeRealPhoto,
 } from "@/lib/orbita/storage";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -113,7 +117,14 @@ export async function POST(req: Request, ctx: Ctx) {
         const urls = await extractImagesFromPage(url, 12);
         for (const u of urls) {
           const img = await fetchImageFromUrl(u);
-          if (img) await ingestOne(img.buffer, img.name, "url");
+          if (!img) continue;
+          // Guardar temporal y validar que sea FOTO real (no logo/icono/banner)
+          const tmpAbs = path.join(os.tmpdir(), `orbita-url-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+          await writeFile(tmpAbs, img.buffer);
+          const ok = await looksLikeRealPhoto(tmpAbs);
+          await rm(tmpAbs, { force: true }).catch(() => undefined);
+          if (!ok) { skipped++; continue; }
+          await ingestOne(img.buffer, img.name, "url");
         }
       }
     } else {

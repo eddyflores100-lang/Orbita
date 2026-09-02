@@ -28,6 +28,30 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+/** Tarjeta de foto con skeleton + fade-in (carga visible, nunca pantalla vacía). */
+function PhotoThumb({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="relative h-full w-full">
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-[#151827] via-[#1b1e30] to-[#151827]">
+          <div className="flex h-full items-center justify-center">
+            <ImageIcon className="h-6 w-6 text-[#2c3049]" />
+          </div>
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        className={`h-full w-full object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+      />
+    </div>
+  );
+}
+
 export default function PhotosPanel({
   detail,
   onChange,
@@ -38,6 +62,7 @@ export default function PhotosPanel({
   const [busy, setBusy] = useState<string | null>(null);
   const [urlInput, setUrlInput] = useState("");
   const [progressPct, setProgressPct] = useState<number | null>(null);
+  const [stage, setStage] = useState<string | null>(null);
   const filesRef = useRef<HTMLInputElement>(null);
   const zipRef = useRef<HTMLInputElement>(null);
   const property = detail.property;
@@ -60,17 +85,23 @@ export default function PhotosPanel({
       for (const f of Array.from(list)) form.append("files", f);
     }
     setBusy(mode);
-    setProgressPct(15);
+    const n = mode === "zip" ? 1 : list.length;
+    setStage(`Recibiendo ${n} archivo${n !== 1 ? "s" : ""}…`);
+    setProgressPct(12);
     try {
-      const timer = window.setInterval(() => setProgressPct((p) => (p === null ? null : Math.min(88, p + 9))), 420);
+      const timer = window.setInterval(() => {
+        setProgressPct((p) => (p === null ? null : Math.min(88, p + 9)));
+        setStage((s) => (s?.includes("Recibiendo") ? "Normalizando, detectando duplicados y generando miniaturas…" : s));
+      }, 900);
       const res = await orbitApi.ingest(property.id, form);
       window.clearInterval(timer);
+      setStage("Listo");
       setProgressPct(100);
       await afterIngest(res.added, res.skipped, res.errors);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Fallo de ingesta");
     } finally {
-      window.setTimeout(() => setProgressPct(null), 700);
+      window.setTimeout(() => { setProgressPct(null); setStage(null); }, 700);
       setBusy(null);
     }
   };
@@ -82,12 +113,16 @@ export default function PhotosPanel({
       return;
     }
     setBusy("url");
+    setStage("Descargando desde la página…");
     setProgressPct(20);
     try {
       const form = new FormData();
       form.set("mode", "url");
       form.set("url", url);
-      const timer = window.setInterval(() => setProgressPct((p) => (p === null ? null : Math.min(85, p + 7))), 500);
+      const timer = window.setInterval(() => {
+        setProgressPct((p) => (p === null ? null : Math.min(85, p + 7)));
+        setStage((s) => (s?.includes("Descargando") ? "Filtrando fotos reales (se descartan logos e iconos)…" : s));
+      }, 800);
       const res = await orbitApi.ingest(property.id, form);
       window.clearInterval(timer);
       setProgressPct(100);
@@ -222,6 +257,7 @@ export default function PhotosPanel({
         {progressPct !== null && (
           <div className="mt-4">
             <Progress value={progressPct} className="h-1.5" />
+            {stage && <p className="mt-1.5 text-[11px] text-violet-300/90">{stage}</p>}
           </div>
         )}
       </div>
@@ -254,8 +290,7 @@ export default function PhotosPanel({
             return (
               <div key={p.id} className="group rounded-xl overflow-hidden border border-[rgba(167,139,250,0.14)] bg-[#0e1019]">
                 <div className="relative aspect-[4/3] bg-[#07080d]">
-                  { }
-                  <img src={thumbUrl(p)} alt={p.caption || `Foto ${i + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                  <PhotoThumb src={thumbUrl(p)} alt={p.caption || `Foto ${i + 1}`} />
                   <div className="absolute top-2 left-2 flex gap-1.5">
                     {p.room ? (
                       <Badge className="bg-[#14062b]/85 text-violet-200 border border-violet-400/30 text-[10px] backdrop-blur">
@@ -267,27 +302,27 @@ export default function PhotosPanel({
                       </Badge>
                     )}
                   </div>
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 transition-opacity">
                     <button
                       onClick={() => void movePhoto(p, -1)}
                       aria-label="Mover foto atrás"
-                      className="rounded-full bg-[#14062b]/85 p-1.5 text-violet-200 hover:bg-violet-500/30"
+                      className="rounded-full bg-[#14062b]/90 p-2 text-violet-200 hover:bg-violet-500/30"
                     >
-                      <ArrowLeft className="h-3 w-3" />
+                      <ArrowLeft className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={() => void movePhoto(p, 1)}
                       aria-label="Mover foto adelante"
-                      className="rounded-full bg-[#14062b]/85 p-1.5 text-violet-200 hover:bg-violet-500/30"
+                      className="rounded-full bg-[#14062b]/90 p-2 text-violet-200 hover:bg-violet-500/30"
                     >
-                      <ArrowRight className="h-3 w-3" />
+                      <ArrowRight className="h-3.5 w-3.5" />
                     </button>
                     <button
                       onClick={() => void deletePhoto(p)}
                       aria-label="Eliminar foto"
-                      className="rounded-full bg-[#14062b]/85 p-1.5 text-red-300 hover:bg-red-500/30"
+                      className="rounded-full bg-[#14062b]/90 p-2 text-red-300 hover:bg-red-500/30"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>

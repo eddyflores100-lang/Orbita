@@ -79,6 +79,7 @@ model OrbitProperty {
   logline         String? // frase del AI Storytelling
   musicStyle      String? // cinematic | luxury | upbeat | minimal | warm | corporate
   bpm             Int?
+  musicVolume     Float   @default(1.0) // 0 = sin música · 0..1.5
   voiceoverOn     Boolean  @default(false) // locución IA sobre el video final
   voiceStyle      String? // voz del narrador (ver VOICES en src/lib/orbita/types.ts)
   hotspots        String? // JSON: [{photoId, u, v, label}] puntos de interés 3D (u,v ∈ [0,1] sobre la foto)
@@ -137,6 +138,7 @@ model OrbitRenderJob {
   planId     String?
   format     String   @default("16:9")
   resolution String   @default("1080") // 720 | 1080
+  quality    String   @default("quality") // IA: speed (borrador) | quality (final)
   status     String   @default("QUEUED") // QUEUED | PROCESSING | RENDERING | ENCODING | COMPLETE | FAILED
   stage      String?
   progress   Float    @default(0)

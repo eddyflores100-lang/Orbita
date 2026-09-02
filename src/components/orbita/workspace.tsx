@@ -150,7 +150,7 @@ export default function PropertyWorkspace({
           <Viewer3DPanel detail={detail} onChange={load} />
         </TabsContent>
         <TabsContent value="render">
-          <RenderPanel detail={detail} />
+          <RenderPanel detail={detail} onChange={load} />
         </TabsContent>
         <TabsContent value="microsite">
           <MicrositePanel detail={detail} onChange={load} />

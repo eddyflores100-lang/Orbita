@@ -160,10 +160,12 @@ export async function extractImagesFromPage(pageUrl: string, limit = 12): Promis
     const html = (await res.text()).slice(0, 900_000);
     const base = new URL(pageUrl);
     const found: string[] = [];
+    // Ruido típico de páginas: logos, iconos, sprites, avatares, banners
+    const NOISE = /(logo|favicon|icon|sprite|avatar|banner|badge|placeholder|watermark|marca|button|btn|header|footer|social|payment|flag)/i;
     const push = (u: string) => {
       try {
         const abs = new URL(u, base).toString();
-        if (/^https?:/.test(abs) && !found.includes(abs)) found.push(abs);
+        if (/^https?:/.test(abs) && !found.includes(abs) && !NOISE.test(abs)) found.push(abs);
       } catch {
         /* url inválida */
       }
@@ -216,6 +218,25 @@ export async function extractImagesFromPage(pageUrl: string, limit = 12): Promis
     return found.slice(0, limit);
   } catch {
     return [];
+  }
+}
+
+/**
+ * Filtro de calidad para fotos descargadas de URLs: descarta logos/iconos
+ * (demasiado pequeñas o con aspect ratio extremo) para que nunca entren a la
+ * propiedad «fotos que no tienen nada que ver».
+ */
+export async function looksLikeRealPhoto(absFile: string): Promise<boolean> {
+  try {
+    const meta = await sharp(absFile).metadata();
+    const w = meta.width ?? 0;
+    const h = meta.height ?? 0;
+    if (w < 480 || h < 320) return false; // logos/banners suelen ser pequeños
+    const ar = h > 0 ? w / h : 0;
+    if (ar < 0.45 || ar > 2.6) return false; // strips, banners, iconos
+    return true;
+  } catch {
+    return false;
   }
 }
 

@@ -37,6 +37,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
     if ("watermarkOn" in body) data.watermarkOn = Boolean(body.watermarkOn);
     if ("published" in body) data.published = Boolean(body.published);
     if ("bpm" in body) data.bpm = Math.max(70, Math.min(120, Number(body.bpm) || 90));
+    if ("musicVolume" in body) data.musicVolume = Math.max(0, Math.min(1.5, Number(body.musicVolume) || 0));
     const property = await db.orbitProperty.update({ where: { id }, data });
     return NextResponse.json({ property });
   } catch {

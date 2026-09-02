@@ -18,6 +18,7 @@ export interface OrbitPropertyDTO {
   logline: string | null;
   musicStyle: string | null;
   bpm: number | null;
+  musicVolume: number;
   voiceoverOn: boolean;
   voiceStyle: string | null;
   hotspots: string | null;
@@ -66,6 +67,7 @@ export interface OrbitJobDTO {
   planId: string | null;
   format: string;
   resolution: string;
+  quality: string;
   status: string;
   stage: string | null;
   progress: number;
@@ -181,11 +183,11 @@ export const orbitApi = {
       body: JSON.stringify({ shots }),
     }),
 
-  startRender: (id: string, resolution: string) =>
+  startRender: (id: string, resolution: string, quality: "speed" | "quality" = "quality") =>
     jsonFetch<{ job: OrbitJobDTO }>(`/api/orbita/properties/${id}/render`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ resolution }),
+      body: JSON.stringify({ resolution, quality }),
     }),
 
   listJobs: (id: string) =>
