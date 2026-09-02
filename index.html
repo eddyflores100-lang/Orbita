@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ÓRBITA — De las fotos de la propiedad al video 3D REAL</title>
-<meta name="description" content="ÓRBITA convierte fotos de una propiedad en video 3D con paralaje denso por profundidad real: la cámara se sumerge y orbita sin inventar contenido. Demo en vivo + video renderizado — La Floresta, Quito.">
-<meta property="og:title" content="ÓRBITA — fotos de la propiedad → video 3D real">
+<meta name="description" content="ÓRBITA convierte fotos de una propiedad en video cinematográfico generado por IA (image-to-video): movimiento de cámara fotorrealista, sin artefactos. Demo en vivo + video renderizado — La Floresta, Quito.">
+<meta property="og:title" content="ÓRBITA — fotos de la propiedad → video cinematográfico IA">
 <meta property="og:description" content="Paralaje 3D denso por profundidad real: la cámara se sumerge y orbita, cada píxel del video sale de tu foto. Sin rellenos ni contenido inventado.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="poster.jpg">
@@ -36,19 +36,19 @@
 <header class="hero" id="top">
   <div class="wrap hero-in">
     <div class="hero-copy">
-      <span class="badge">Motor 3D · paralaje denso por profundidad · cero contenido inventado</span>
-      <h1>De las fotos de la propiedad<br>al <em>video 3D real</em>.</h1>
-      <p class="lead">Paralaje 3D denso guiado por profundidad real: cada píxel se mueve según
-      su distancia a la cámara. La cámara <b>se sumerge</b> y <b>orbita</b> con movimientos
-      cinematográficos — <b>sin inventar contenido</b>: cada píxel del video sale de tu foto.</p>
+      <span class="badge">Motor IA · video cinematográfico por difusión · sin marca de agua</span>
+      <h1>De las fotos de la propiedad<br>al <em>video cinematográfico IA</em>.</h1>
+      <p class="lead">Tu foto es el primer frame y un modelo de video por difusión genera el
+      movimiento de cámara: <b>dolly</b>, <b>órbita</b> y <b>travelling</b> fotorrealistas.
+      Sin warping geométrico: <b>cero líneas fantasma, cero sombras inventadas, cero deformación</b>.</p>
       <div class="cta-row">
         <a class="btn solid" href="#visor">Probar con tus fotos</a>
         <a class="btn ghost" href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">Código y app completa ↗</a>
       </div>
       <div class="stats">
         <div><b>9</b><span>fotos demo generadas con IA</span></div>
-        <div><b>14 s</b><span>video 3D renderizado</span></div>
-        <div><b>100%</b><span>en el navegador · sin servidor</span></div>
+        <div><b>41 s</b><span>video cinematográfico IA</span></div>
+        <div><b>0</b><span>artefactos · sin marca de agua</span></div>
       </div>
     </div>
     <figure class="hero-video">
@@ -61,31 +61,31 @@
 
 <section class="section" id="motor">
   <div class="wrap">
-    <h2>Cómo funciona el <span class="accent">3D real</span></h2>
-    <p class="section-sub">El motor de paralaje denso del backend, demostrado también en tu navegador.</p>
+    <h2>Cómo funciona el <span class="accent">motor IA</span></h2>
+    <p class="section-sub">Video por difusión (cogvideox-3) con tu foto real como primer frame — más un visor 3D interactivo en tu navegador.</p>
     <div class="steps">
       <article class="step">
         <span class="n">01</span>
-        <h3>Profundidad IA</h3>
-        <p>Depth Anything V2 estima el mapa de profundidad de cada foto en un Web Worker (WebGPU o WASM). El modelo se descarga una vez (~30 MB) y queda en caché.</p>
+        <h3>Fotos reales, entendidas por IA</h3>
+        <p>Visión IA clasifica cada habitación y describe la escena. La ingesta por URL descarta logos, iconos y banners: solo entran fotos reales de la propiedad.</p>
       </article>
       <article class="step">
         <span class="n">02</span>
-        <h3>Warp por profundidad</h3>
-        <p>Cada píxel de salida se muestrea de tu foto según su profundidad real: los cercanos se abren en perspectiva, los lejanos apenas se mueven. Las líneas rectas permanecen rectas.</p>
+        <h3>Video por difusión</h3>
+        <p>Cada foto se envía al generador image-to-video con un prompt cinematográfico de movimiento sutil. La salida es fotorrealista: líneas rectas que permanecen rectas, luz natural, sin artefactos.</p>
       </article>
       <article class="step">
         <span class="n">03</span>
-        <h3>Cero contenido inventado</h3>
-        <p>Sin rellenos ni inpainting: cada píxel del video sale de TU foto. Lo que se revela tras un objeto estira el fondo de forma continua — sin manchas ni sombras falsas.</p>
+        <h3>Montaje con música y locución</h3>
+        <p>Clips normalizados (16:9 · 9:16 · 1:1), transiciones xfade, banda sonora con estilo/tempo/volumen editables y locución IA con ducking. Sin marca de agua, siempre.</p>
       </article>
       <article class="step">
         <span class="n">04</span>
-        <h3>Cámara que viaja</h3>
-        <p>La cámara se sumerge, orbita, barre y sube en grúa con amplitudes contenidas: la profundidad se siente sin deformar la escena. Modo libre con el ratón.</p>
+        <h3>Visor 3D interactivo</h3>
+        <p>Además, cada foto se convierte en escena 3D navegable en tu navegador: profundidad estimada en un Web Worker y cámara libre con el ratón o el giroscopio.</p>
       </article>
     </div>
-    <p class="note">Backend de producción: <code>ldi.py</code> + <code>engine3d.py</code> — warp inverso denso, profundidad filtrada y renders 16:9 · 9:16 · 1:1 con ffmpeg. Ver <a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">repo</a>.</p>
+    <p class="note">Backend de producción: <code>ai-video.ts</code> (motor IA) + <code>engine3d.py</code> (fallback local) — renders 16:9 · 9:16 · 1:1 con ffmpeg. Ver <a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">repo</a>.</p>
   </div>
 </section>
 
@@ -164,7 +164,7 @@
     <div class="vertical-grid">
       <figure class="vertical-video">
         <video src="la-floresta-916.mp4" controls playsinline preload="metadata"></video>
-        <figcaption><b>9:16 · 14 s · 720×1280</b> — render 3D real + música procedural (listo para Reels/TikTok).</figcaption>
+        <figcaption><b>9:16 · 720×1280</b> — video IA + música (listo para Reels/TikTok).</figcaption>
       </figure>
       <div class="vertical-copy">
         <article class="step" style="margin-bottom:14px">
