@@ -1,4 +1,4 @@
-"""ÓRBITA · Clip 3D real: foto → LDI multicapa → coreografía → MP4.
+"""ÓRBITA · Clip 3D real: foto → paralaje denso → coreografía → MP4.
 Uso: python3 render_worker.py input/photo_01.webp dive output/clip_01.mp4 [WxH]
 Formatos: 1920x1080 (web, defecto) · 720x1280 (9:16 Reels/TikTok) · 720x720 (1:1 feed).
 El render interno es NATIVO a la salida (sin upscale → sin borrosidad)."""
@@ -49,7 +49,7 @@ def main(photo: str, move: str, out: str, dims: str | None = None) -> None:
         ["ffmpeg", "-y", "-loglevel", "error",
          "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{RW}x{RH}",
          "-r", str(FPS), "-i", "-",
-         "-vf", "hqdn3d=1.5:1.2:2:1.2,unsharp=5:5:0.4",
+         "-vf", "hqdn3d=1.2:0.9:2:1",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "17",
          "-pix_fmt", "yuv420p", out + ".tmp.mp4"],
         stdin=subprocess.PIPE)

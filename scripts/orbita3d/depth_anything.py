@@ -123,8 +123,10 @@ def estimate_depth(sess, img: Image.Image) -> np.ndarray:
 
     dm = Image.fromarray((d * 255).astype(np.uint8)).resize((w, h), Image.BICUBIC)
     d = np.asarray(dm, np.float32) / 255.0
-    d = ndimage.median_filter(d, size=3)
-    d = ndimage.gaussian_filter(d, 2.0)
+    # mediana 5 + gaussiana: mata el "rayado" en franjas (persianas,
+    # baldosas, estanterías) que con paralaje se ve como LÍNEAS falsas
+    d = ndimage.median_filter(d, size=5)
+    d = ndimage.gaussian_filter(d, 2.2)
     d = _norm_soft(d)
     d = _border_ramp(d)
     return d.astype(np.float32)

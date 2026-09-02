@@ -32,7 +32,7 @@ def main(out: str) -> None:
     cmd = (["ffmpeg", "-y", "-loglevel", "error"] + inputs +
            ["-filter_complex", ";".join(filt),
             "-map", "[vout]", "-map", "[aout]",
-            "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
             "-c:a", "aac", "-b:a", "192k",
             "-movflags", "+faststart", out])
     subprocess.run(cmd, check=True)

@@ -2,28 +2,27 @@
 
 Convierte fotos reales de una propiedad en **video 3D real** (la cámara se sumerge y orbita en la escena, con oclusión verdadera), música original multi-estilo, micrositio publicable con QR y analítica.
 
-> Demo real incluida: *Departamento 199 m² con Terraza · La Floresta, Quito* (aviso RE/MAX Ecuador, 9 fotos reales).
+> Demo incluida: *Departamento 199 m² con Terraza · La Floresta, Quito* — 9 fotos generadas por IA, **100% limpias: sin marcas de agua ni marcas de terceros**.
 
 ## Cómo funciona el motor 3D
 
-ÓRBITA **no** aplica efectos parallax ni warps 2.5D. Cada foto se convierte en una **escena 3D real** (Layered Depth Images, técnica de [3d-photo-inpainting, CVPR 2020](https://github.com/vt-vl-lab/3d-photo-inpainting)):
+ÓRBITA convierte cada foto en una **escena 3D navegable con paralaje denso por profundidad** (warp inverso pixel-a-píxel, v4). Filosofía: **cero contenido inventado** — cada píxel del video sale de la foto original; el motor no rellena, no inpinta y no hallucina:
 
-1. **Profundidad métrica** — Depth Anything V2 Small (ONNX, CPU) estima el mapa de profundidad de cada foto.
-2. **Segmentación por protusión** — los objetos que sobresalen de su superficie se separan en capas (los planos como techos/paredes no).
-3. **Inpainting de oclusiones** — lo que queda detrás de un objeto se rellena (EDT + relajación de Laplace) en color y profundidad.
-4. **Nube de puntos 3D** — cada píxel se convierte en un punto con posición métrica (Z real).
-5. **Cámara libre** — la cámara viaja DENTRO de la escena (sumergirse, orbitar, barrer, grúa) con painter's algorithm: lo cercano tapa lo lejano de verdad.
-6. **Render** — ffmpeg (h264 + música procedural) → MP4 1080p.
+1. **Profundidad** — Depth Anything V2 Small (ONNX, CPU) estima el mapa de profundidad; mediana + gaussiana eliminan el "rayado" en franjas que se vería como líneas falsas.
+2. **Warp inverso denso** — cada píxel de SALIDA se muestrea (bilineal) de la foto original según su profundidad real: sin nubes de puntos, sin splats, sin huecos de oclusión que rellenar.
+3. **Cámara libre** — la cámara se sumerge, orbita, barre y asciende con trayectorias de amplitud contenida: la profundidad se siente, las líneas rectas permanecen rectas.
+4. **Padding espejado** — la foto se extiende un 12% por lado con contenido espejado; el fov "cover" garantiza que nunca aparezcan bandas vacías.
+5. **Render** — ffmpeg (h264, sin unsharp para evitar halos) + música procedural → MP4 16:9 / 9:16 / 1:1.
 
 ```
-fotos → profundidad → capas LDI + inpainting → nube 3D → trayectorias de cámara → MP4 + música
+fotos → profundidad (limpia) → warp inverso denso → trayectorias de cámara → MP4 + música
 ```
 
 ## Stack
 
 - **Next.js 16 + TypeScript + Tailwind + shadcn/ui** (app + micrositios + API)
 - **Prisma + SQLite** (propiedades, planes de shots, jobs de render, analítica)
-- **Python (numpy/scipy/Pillow/onnxruntime)** — motor 3D LDI (`scripts/orbita3d/`)
+- **Python (numpy/scipy/Pillow/onnxruntime)** — motor 3D de paralaje denso (`scripts/orbita3d/`)
 - **ffmpeg** — render y composición
 - Música procedural multi-estilo (cinematic / elegante / lofi / épico) sintetizada con numpy
 
@@ -34,7 +33,7 @@ src/app/                 — app web (dashboard ÓRBITA, micrositios /p/[slug], 
 src/lib/orbita/          — ingest, director de shots, render worker, seed demo
 scripts/orbita3d/        — MOTOR 3D: depth_anything.py, ldi.py, engine3d.py,
                            music_gen.py, render_worker.py, compose*.py
-public/orbita/           — fotos reales de la propiedad demo + video demo
+public/orbita/           — fotos de la propiedad demo (generadas por IA) + video demo
 public/models3d/         — modelo ONNX (se auto-descarga, ver abajo)
 ```
 

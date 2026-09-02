@@ -49,3 +49,12 @@ GITHUB_TOKEN=ghp_xxx bash scripts/github-sync/push-ghpages.sh /home/z/ghpages-wo
 
 - **Railway**: conectar el repo → detecta `railway.json` + `Dockerfile` → volumen en `/app/data`. Ver `DEPLOY.md`.
 - Cualquier VPS: `docker build -t orbita . && docker run -p 3000:3000 -v orbita-data:/app/data orbita`
+
+## ÓRBITA v3.3 (motor fiel a la foto + demo 100% limpia, sep 2026)
+
+- **REESCRITURA DEL MOTOR** (`ldi.py` v4): fuera nube de puntos+splat e inpainting de Laplace — generaban exactamente los artefactos rechazados (líneas falsas = splats estirados; sombras inventadas = relleno armónico; deformación = paralaje excesivo). Ahora: **warp inverso denso** — cada píxel de salida se muestrea bilinealmente de la foto original según profundidad real. Cero contenido inventado. 2 iteraciones de convergencia por frame.
+- **Profundidad filtrada** (`depth_anything.py`): mediana 5 + gaussiana 2.2 — mata el "rayado" en franjas (persianas/baldosas) que con paralaje se ve como líneas que no existen. LDI aplica una limpieza adicional.
+- **Coreografía contenida** (`choreo.py`): amplitudes al ~50% (órbita ±4.5°, barrido ±0.085, dive 0.16), handheld reducido — la profundidad se siente, las líneas rectas siguen rectas. `engine3d.py`: sin `unsharp` (halos = sombras falsas), fotos hasta 1600px (la foto es LA fuente del warp).
+- **Demo sin marcas**: los 9 fotos del seed ERAN de un aviso RE/MAX Ecuador (logo-globo incrustado, además destruía la profundidad). Reemplazadas por **9 fotos generadas por IA** (coherentes, La Floresta Quito) — script de procedencia `scripts/orbita3d/gen_demo_photos.sh`. Seed con migración: fotos `origin:"url"` viejas se borran y re-siembran como `origin:"generated"`. `README.md` y gh-pages sin ninguna mención a RE/MAX.
+- **Videos demo re-renderizados** (motor v4): `public/orbita/demo/la-floresta-3d.mp4` (1280×720, 14s, 3 shots) + `la-floresta-916.mp4` (720×1280) + poster. **Release `demo-3d-real` reemplazado** vía API: `ORBITA_3D_LaFloresta_41s.mp4` (41s, 9 shots) + vertical. Los acumuladores de `xfade_seq.py` ahora viven junto a su clips.json (parametrizado — antes pisaban cadenas paralelas).
+- ⚠️ Lecciones: los procesos `setsid nohup` lanzados desde el shell de la sesión MUEREN al terminar la llamada — renderizar en lotes síncronos (3 shots ≈ 5 min a 720p); `bunx tsc` en el repo puede seguir includes hacia ../my-project — validar tipos en el workspace de la app; instalar `three`+`@types/three` en el workspace si el micrositio pide Viewer3D.

@@ -158,7 +158,7 @@ export default function MicrositeClient({
                 </span>
               </button>
             ) : (
-              <Viewer3D propertyId={property.id} photos={photos.map((p) => ({ ...p, propertyId: property.id, orientation: "landscape", hash: "", size: 0, origin: "", roomConf: null, quality: null, analysis: null }))} hotspots={hotspots} />
+              <Viewer3D propertyId={property.id} photos={photos.map((p, i) => ({ ...p, propertyId: property.id, order: i, orientation: "landscape", hash: "", size: 0, origin: "", roomConf: null, quality: null, analysis: null }))} hotspots={hotspots} />
             )}
           </section>
         )}

@@ -1,6 +1,7 @@
-// ÓRBITA — Seed de la propiedad real "La Floresta 199" (RE/MAX Ecuador)
-// con sus 9 fotos reales y el video 3D real ya renderizado por el motor LDI.
-// Idempotente: si la propiedad ya tiene fotos y job completo, no toca nada.
+// ÓRBITA — Seed de la propiedad demo "La Floresta 199" (Quito)
+// con sus 9 fotos GENERADAS POR IA (100% limpias, sin marcas de agua ni
+// logos de terceros) y el video 3D ya renderizado por el motor.
+// Idempotente: si la propiedad ya tiene fotos del seed actual, no toca nada.
 import { readFile, copyFile, mkdir, access } from "fs/promises";
 import { execFile } from "child_process";
 import { existsSync } from "fs";
@@ -11,16 +12,17 @@ import { RENDERS_ROOT } from "./storage";
 import type { Shot } from "./types";
 
 export const LAFLORESTA_SLUG = "la-floresta-199";
-// Fotos reales del aviso: viven en public/ (viajan en el deploy) con
-// respaldo en scripts/orbita3d/input (sandbox).
+// Fotos generadas por IA: viven en public/ (viajan en el deploy)
 const PHOTO_DIRS = [
   path.join(process.cwd(), "public", "orbita", "la-floresta"),
-  path.join(process.cwd(), "scripts", "orbita3d", "input"),
 ];
 const PHOTOS = [
-  "photo_01.webp", "photo_02.webp", "photo_03.jpg", "photo_04.jpg", "photo_05.jpg",
-  "photo_06.jpg", "photo_07.jpg", "photo_08.jpg", "photo_09.jpg",
+  "photo_01.png", "photo_02.png", "photo_03.png", "photo_04.png", "photo_05.png",
+  "photo_06.png", "photo_07.png", "photo_08.png", "photo_09.png",
 ];
+// v1 del seed usaba fotos de un aviso real con marca de agua (origin "url").
+// Si se detectan, se borran fotos/plans/jobs y se re-siembran limpias.
+const SEED_ORIGIN = "generated";
 const MOVES: Array<Shot["move"]> = [
   "dolly-in", "orbit", "push", "pan-right", "tilt-up",
   "dolly-in", "orbit", "pan-right", "dolly-in",
@@ -43,13 +45,13 @@ export async function seedLaFloresta(): Promise<{ propertyId: string; created: b
         aspect: "16:9",
         musicStyle: "cinematic",
         bpm: 90,
-        hostName: "Asesor RE/MAX · La Floresta",
+        hostName: "Asesor inmobiliario · La Floresta",
         ctaText: "Agendar visita privada",
         features: JSON.stringify([
           "199 m² de construcción",
-          "Terraza propia",
+          "Terraza propia con vista a los Andes",
           "Barrio La Floresta, Quito",
-          "Aviso real publicado en RE/MAX Ecuador",
+          "3 habitaciones · 2.5 baños",
         ]),
         logline:
           "Sumérgete en este departamento de 199 m² con terraza en La Floresta — un recorrido 3D real por cada ambiente.",
@@ -61,10 +63,32 @@ export async function seedLaFloresta(): Promise<{ propertyId: string; created: b
     });
   }
 
+  // Limpieza de marcas: si las fotos existentes vienen del seed v1
+  // (aviso de tercero con marca de agua), se eliminan junto con planes
+  // y jobs para re-siembrar las limpias.
+  const stale = await db.orbitPhoto.count({
+    where: { propertyId: prop.id, origin: "url" },
+  });
+  if (stale > 0) {
+    await db.orbitRenderJob.deleteMany({ where: { propertyId: prop.id } });
+    await db.orbitPlan.deleteMany({ where: { propertyId: prop.id } });
+    await db.orbitPhoto.deleteMany({ where: { propertyId: prop.id } });
+    if (prop.hostName?.includes("RE/MAX")) {
+      await db.orbitProperty.update({
+        where: { id: prop.id },
+        data: { hostName: "Asesor inmobiliario · La Floresta" },
+      });
+    }
+    prop = await db.orbitProperty.findUnique({
+      where: { slug: LAFLORESTA_SLUG },
+      include: { _count: { select: { photos: true } } },
+    }) as typeof prop;
+  }
+
   const propertyId = prop.id;
   let created = false;
 
-  // Fotos reales (9) — de la galería del aviso
+  // Fotos limpias (9) — generadas por IA
   if (prop._count.photos === 0) {
     let order = 0;
     const exists = async (d: string, n: string) => {
@@ -93,7 +117,7 @@ export async function seedLaFloresta(): Promise<{ propertyId: string; created: b
               orientation: ing.orientation,
               hash: ing.hash,
               size: ing.size,
-              origin: "url",
+              origin: SEED_ORIGIN,
             },
           });
           order += 1;
@@ -133,14 +157,13 @@ export async function seedLaFloresta(): Promise<{ propertyId: string; created: b
     created = true;
   }
 
-  // Job COMPLETE con el video 3D real ya renderizado
+  // Job COMPLETE con el video 3D ya renderizado
   const existingJob = await db.orbitRenderJob.findFirst({
     where: { propertyId, status: "COMPLETE" },
   });
   if (!existingJob && plan) {
     const outRel = "la-floresta-3d.mp4";
-    // Fuente del video 3D real: asset versionado en public/ (viaja en el repo)
-    // con fallback al MP4 full-res en download/ (entorno de desarrollo).
+    // Fuente del video 3D: asset versionado en public/ (viaja en el repo)
     const srcPublic = path.join(process.cwd(), "public", "orbita", "demo", "la-floresta-3d.mp4");
     const srcFallback = path.join(process.cwd(), "download", "ORBITA_3D_LaFloresta.mp4");
     const src = existsSync(srcPublic) ? srcPublic : srcFallback;
@@ -161,7 +184,7 @@ export async function seedLaFloresta(): Promise<{ propertyId: string; created: b
           propertyId,
           planId: plan.id,
           format: "16:9",
-          resolution: "540",
+          resolution: "720",
           status: "COMPLETE",
           stage: "Listo",
           progress: 100,

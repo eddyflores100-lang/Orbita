@@ -4,7 +4,7 @@
 // música y logline.
 // Motor primario: LLM (z-ai-web-dev-sdk). Fallback: director por reglas.
 
-import type { CameraMove, MusicStyle, PlanData, Shot } from "./types";
+import type { CameraMove, Format, MusicStyle, PlanData, Shot } from "./types";
 import { CAMERA_MOVES, MUSIC_STYLES, ROOM_NARRATIVE, TONES } from "./types";
 
 export interface DirectorPhoto {
@@ -20,7 +20,7 @@ export interface DirectorPhoto {
 export interface DirectorInput {
   propertyName: string;
   tone: string;
-  format: "16:9" | "9:16";
+  format: Format;
   photos: DirectorPhoto[];
 }
 

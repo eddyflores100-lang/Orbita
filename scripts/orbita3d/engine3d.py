@@ -1,9 +1,10 @@
 """ÓRBITA · Motor 3D REAL — CLI batch para el backend del producto.
 
 Convierte un lote de shots (foto + movimiento de cámara) en segmentos MP4
-usando el motor LDI multicapa (3d-photo-inpainting, CVPR 2020):
-  profundidad monocular → capas con inpainting de oclusiones → cámara libre
-que se sumerge y orbita en la escena con oclusión verdadera.
+usando el motor de paralaje denso (ldi.py v4):
+  profundidad monocular → warp inverso denso por píxel → cámara libre
+que se sumerge y orbita SIN inventar contenido (cada píxel sale de la
+foto original; sin splats, sin inpainting, sin halos).
 
 Uso:
   python3 engine3d.py spec.json
@@ -43,7 +44,8 @@ from prep import fov_cover, load_rgb, pad_depth
 FPS_DEFAULT = 30
 INTERNAL_H = 1080         # render 3D interno NATIVO (16:9 → 1920×1080) —
                           # sin upscale: antes era 720 y al escalar quedaba borroso
-MAX_SIDE = 1280           # las fotos se normalizan a este tamaño antes del LDI
+MAX_SIDE = 1600           # la foto es LA FUENTE del warp: más pixeles =
+                          # render más nítido (el splat viejo "tapaba" el upscale)
 DUR_DEFAULT = {"dive": 5.0, "orbit": 5.4, "push": 4.6, "sweep": 4.8, "crane": 5.0}
 
 # movimiento del plan (app) → trayectoria 3D real (+ reversa)
@@ -138,8 +140,9 @@ def render_shot(idx: int, total: int, shot: dict, depth_cache: DepthCache,
         ["ffmpeg", "-y", "-loglevel", "error",
          "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{rw}x{rh}",
          "-r", str(fps), "-i", "-",
-         "-vf", (f"scale={W}:{H}:flags=lanczos,hqdn3d=1.5:1.2:2:1.2,"
-                 f"unsharp=5:5:0.4,"
+         # sin unsharp: amplificaba los filos del warp en halos que leían
+         # como "sombras"; el warp denso ya sale nítido desde la foto
+         "-vf", (f"scale={W}:{H}:flags=lanczos,hqdn3d=1.2:0.9:2:1,"
                  f"fade=t=in:st=0:d={fd:.2f},fade=t=out:st={dur - fd:.2f}:d={fd:.2f},"
                  "format=yuv420p"),
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "17",
