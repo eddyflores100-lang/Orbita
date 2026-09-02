@@ -6,7 +6,8 @@
 |---|---|
 | **Repo** | https://github.com/eddyflores100-lang/Orbita |
 | **Demo (GitHub Pages)** | https://eddyflores100-lang.github.io/Orbita/ |
-| **Video completo 1080p** | https://github.com/eddyflores100-lang/Orbita/releases (asset `ORBITA_3D_LaFloresta_1080p.mp4`) |
+| **Video 1080p con locución IA** | https://github.com/eddyflores100-lang/Orbita/releases/download/demo-3d-real/ORBITA_3D_LaFloresta_1080p.mp4 |
+| **Video 9:16 Reels con locución** | https://github.com/eddyflores100-lang/Orbita/releases/download/demo-3d-real/ORBITA_3D_LaFloresta_916_Reels.mp4 |
 
 - Usuario GitHub: **eddyflores100-lang**
 - Repo público: `eddyflores100-lang/Orbita`
@@ -26,7 +27,14 @@
 3. Empujar con: `GITHUB_TOKEN=ghp_xxx bash scripts/github-sync/push-main.sh` (o `push-ghpages.sh`).
 4. El token es un PAT clásico con scope **repo** (y **workflow** si se tocan GitHub Actions). Rotarlo si se expuso en chat.
 5. El modelo ONNX de 94MB NO vive en el repo: se auto-descarga en build/runtime (ver `Dockerfile` y `scripts/fetch-model.sh`).
-6. El video 3D completo (41s, 1080p) no vive en el repo (80MB): se publica como **Release asset** con `scripts/github-sync/release-video.sh`.
+6. El video 3D completo (41s) no vive en el repo: se publica como **Release assets** (16:9 con locución + 9:16 vertical) con `scripts/github-sync/release-video.sh` o API directa.
+
+## ÓRBITA v3.2 (Quick Wins, sep 2026)
+
+- **Formatos**: `16:9` web · `9:16` Reels/TikTok · `1:1` feed — el motor renderiza NATIVO en cada formato (`render_worker.py <foto> <move> <out> WxH`; `engine3d.py` acepta cualquier width/height en el spec).
+- **Tour 3D interactivo** (Three.js) en el micrositio `/p/[slug]` y tab "Tour 3D" del estudio: nube de puntos con la MISMA profundidad del motor de video (endpoint `GET /api/orbita/properties/:id/photos/:photoId/depth` → `depth_png.py`, caché compartida), arrastrar para mirar, rueda/pinza para sumergirse, giroscopio móvil (iOS pide permiso), y **hotspots** anclados al espacio 3D (JSON en `OrbitProperty.hotspots`: `[{photoId,u,v,label}]`, editor con modo colocar).
+- **Locución IA**: guion por LLM calibrado a la duración (`voiceover.ts`), TTS (`zai.audio.tts`, voces tongtong/xiaochen/luodo/kazi), mezcla ffmpeg con **ducking** (sidechaincompress). Toggle + voz en el AI Director; `OrbitProperty.voiceoverOn/voiceStyle`. Se aplica al render del producto.
+- ⚠️ Lecciones: el sandbox exporta `DATABASE_URL` global que PISA el `.env` (lanzar dev con `env DATABASE_URL=file:...` explícito); ffmpeg `-filter_complex` NO debe llevar etiquetas de un solo carácter entre corchetes (`[m]`) en este shell — usar `[mus]`, `[vox]`; `execFile` de `child_process` SIEMPRE con `promisify` (await sobre ChildProcess no espera).
 
 ## Deploy del demo (gh-pages)
 
