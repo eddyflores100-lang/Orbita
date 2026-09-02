@@ -1,5 +1,7 @@
 """ÓRBITA · Clip 3D real: foto → LDI multicapa → coreografía → MP4.
-Uso: python3 render_worker.py input/photo_01.webp dive output/clip_01.mp4"""
+Uso: python3 render_worker.py input/photo_01.webp dive output/clip_01.mp4 [WxH]
+Formatos: 1920x1080 (web, defecto) · 720x1280 (9:16 Reels/TikTok) · 720x720 (1:1 feed).
+El render interno es NATIVO a la salida (sin upscale → sin borrosidad)."""
 import os
 import subprocess
 import sys
@@ -12,17 +14,24 @@ from depth_anything import estimate_depth, load_model
 from ldi import LDI3D
 from prep import fov_cover, load_rgb, pad_depth
 
-RW, RH = 1920, 1080    # render interno NATIVO (sin upscale → sin borrosidad)
-FW, FH = 1920, 1080    # salida
 FPS = 30
 
 
-def main(photo: str, move: str, out: str) -> None:
+def _dims(arg: str | None):
+    if not arg:
+        return 1920, 1080
+    w, _, h = arg.lower().partition("x")
+    return max(2, int(w)), max(2, int(h))
+
+
+def main(photo: str, move: str, out: str, dims: str | None = None) -> None:
+    RW, RH = _dims(dims)
     assert move in DUR, f"movimiento desconocido: {move}"
     stem = os.path.splitext(os.path.basename(photo))[0]
     dpath = f"depth/{stem}.npy"
     if not os.path.exists(dpath):
         sess = load_model()
+        os.makedirs("depth", exist_ok=True)
         np.save(dpath, estimate_depth(sess, Image.open(photo)))
     d = np.load(dpath)
 
@@ -60,4 +69,4 @@ def main(photo: str, move: str, out: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4] if len(sys.argv) > 4 else None)
