@@ -21,6 +21,11 @@ def _model_candidates():
     cands = [
         os.environ.get("ORBITA_MODEL", ""),
         os.path.join(here, "models", "model.onnx"),
+        # dir persistente de modelos (Docker/deploys: ORBITA_MODELS_DIR) —
+        # misma ruta donde ensure_model() descarga (antes no se buscaba aquí)
+        os.path.join(os.environ.get("ORBITA_MODELS_DIR", "/nonexistent"),
+                     "depth-anything-v2-small.onnx"),
+        os.path.join(root, "data", "models", "depth-anything-v2-small.onnx"),
         os.path.join(root, "public", "models3d", "depth-anything-v2-small.onnx"),
         os.path.join(os.getcwd(), "public", "models3d", "depth-anything-v2-small.onnx"),
     ]

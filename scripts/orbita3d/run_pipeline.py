@@ -44,7 +44,10 @@ def main() -> None:
     sh([sys.executable, "music_gen.py", "cinematic", f"{total:.2f}", "output/music.wav"])
 
     final = sys.argv[1] if len(sys.argv) > 1 else "output/ORBITA_video_3d.mp4"
-    sh([sys.executable, "compose.py", final])
+    # xfade_seq (reanudable: salta pares ya unidos) en lugar de compose.py
+    # (una sola invocación ffmpeg con 9 inputs — inviable en sandbox con CPU
+    # estrangulada porque no se puede reanudar a medias)
+    sh([sys.executable, "xfade_seq.py", final])
     print("PIPELINE_OK", final, flush=True)
 
 

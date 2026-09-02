@@ -51,8 +51,8 @@ class LDI3D:
         lo, hi = np.percentile(d, 2), np.percentile(d, 98)
         d = np.clip((d - lo) / max(hi - lo, 1e-6), 0, 1)
         # coherencia espacial: mediana (mata motas/rayado del techo y paredes)
-        d = ndimage.median_filter(d, size=4)
-        d = ndimage.gaussian_filter(d, 2.2)
+        d = ndimage.median_filter(d, size=3)
+        d = ndimage.gaussian_filter(d, 1.6)
         lo, hi = np.percentile(d, 5), np.percentile(d, 95)
         d = np.clip((d - lo) / max(hi - lo, 1e-6), 0, 1)
 
@@ -150,9 +150,12 @@ class LDI3D:
     def basis(Cpos, target):
         fwd = target - Cpos
         fwd = fwd / np.linalg.norm(fwd)
-        right = np.cross(fwd, np.array([0.0, -1.0, 0.0]))  # mundo Y-abajo
+        # mundo Y-abajo (coordenadas de imagen): up = (0,-1,0)
+        right = np.cross(fwd, np.array([0.0, -1.0, 0.0]))
         right /= np.linalg.norm(right)
-        down = np.cross(right, fwd)
+        # down = fwd × right  (con Y-abajo, right×fwd apunta hacia ARRIBA
+        # y la escena salía DE CABEZA — bug histórico corregido)
+        down = np.cross(fwd, right)
         return right, down, fwd
 
     def render(self, Cpos, target, W=1600, H=900, fov_scale=1.16) -> np.ndarray:

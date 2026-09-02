@@ -33,14 +33,16 @@ import subprocess
 import sys
 
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image
 
 from choreo import camera
 from depth_anything import estimate_depth, load_model
 from ldi import LDI3D
+from prep import fov_cover, load_rgb, pad_depth
 
 FPS_DEFAULT = 30
-INTERNAL_H = 720          # altura del render 3D interno (16:9 → 1280×720)
+INTERNAL_H = 1080         # render 3D interno NATIVO (16:9 → 1920×1080) —
+                          # sin upscale: antes era 720 y al escalar quedaba borroso
 MAX_SIDE = 1280           # las fotos se normalizan a este tamaño antes del LDI
 DUR_DEFAULT = {"dive": 5.0, "orbit": 5.4, "push": 4.6, "sweep": 4.8, "crane": 5.0}
 
@@ -90,11 +92,9 @@ class DepthCache:
         return d
 
 
-def _load_photo(photo: str) -> Image.Image:
-    img = ImageOps.exif_transpose(Image.open(photo)).convert("RGB")
-    if max(img.size) > MAX_SIDE:
-        img.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
-    return img
+def _load_photo(photo: str):
+    """RGB con padding espejado + dims originales (ver prep.py)."""
+    return load_rgb(photo, MAX_SIDE)
 
 
 def render_shot(idx: int, total: int, shot: dict, depth_cache: DepthCache,
@@ -106,44 +106,52 @@ def render_shot(idx: int, total: int, shot: dict, depth_cache: DepthCache,
     dur = float(max(2.0, min(8.0, shot.get("duration", DUR_DEFAULT[MOVE_MAP[move][0]]))))
     out = shot["out"]
 
+    # dims del render interno (constantes por corrida): para el fov cover
+    rh0 = min(INTERNAL_H, H)
+    rw0 = int(round(rh0 * W / H / 2.0) * 2)
+
     if photo not in lru:
         log(f"DEPTH {idx}")
         d = depth_cache.get(photo)
         log(f"LDI {idx}")
-        rgb = np.asarray(_load_photo(photo))
+        rgb, w_orig, h_orig = _load_photo(photo)
         d = np.asarray(Image.fromarray((d * 255).astype(np.uint8)).resize(
-            (rgb.shape[1], rgb.shape[0]), Image.BICUBIC), np.float32) / 255.0
-        lru[photo] = LDI3D(rgb, d)
-        if len(lru) > 4:  # LRU simple: cada escena ≈ 10 MB
+            (w_orig, h_orig), Image.BICUBIC), np.float32) / 255.0
+        d = pad_depth(d, w_orig, h_orig)
+        lru[photo] = (LDI3D(rgb, d),
+                      fov_cover(w_orig, h_orig, rw0, rh0))
+        if len(lru) > 4:  # LRU simple: cada escena ≈ 40 MB con padding
             lru.pop(next(iter(lru)))
-    scene = lru[photo]
+    scene, fsb = lru[photo]
 
     n_frames = max(2, int(round(dur * fps)))
     fd = min(0.3, dur / 5)
     tmp = out + ".tmp.mp4"
 
-    # render 3D interno: misma proporción que la salida, altura 720
-    # (16:9 → 1280×720 · 9:16 → 405×720); luego Lanczos al tamaño final
-    rw = int(round(INTERNAL_H * W / H / 2.0) * 2)
-    rh = INTERNAL_H
+    # render 3D interno: misma proporción que la salida, altura NATIVA
+    # (cap 1080): 1920×1080 · 720p→1280×720 · 9:16→608×1080. El filtro
+    # scale de ffmpeg hace la conversión final — los frames del pipe SIEMPRE
+    # son rw×rh (antes se reescalaban en numpy y corrumpían el rawvideo)
+    rh = min(INTERNAL_H, H)
+    rw = int(round(rh * W / H / 2.0) * 2)
     proc = subprocess.Popen(
         ["ffmpeg", "-y", "-loglevel", "error",
          "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{rw}x{rh}",
          "-r", str(fps), "-i", "-",
-         "-vf", (f"scale={W}:{H}:flags=lanczos,hqdn3d=2:1.5:2:1.5,"
-                 f"unsharp=5:5:0.3,"
+         "-vf", (f"scale={W}:{H}:flags=lanczos,hqdn3d=1.5:1.2:2:1.2,"
+                 f"unsharp=5:5:0.4,"
                  f"fade=t=in:st=0:d={fd:.2f},fade=t=out:st={dur - fd:.2f}:d={fd:.2f},"
                  "format=yuv420p"),
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "19",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "17",
          "-pix_fmt", "yuv420p", tmp],
         stdin=subprocess.PIPE)
 
     for i in range(n_frames):
         u = i / (n_frames - 1)
         C, T, fs = _traj(move, u)
-        frame = scene.render(C, T, W=rw, H=rh, fov_scale=fs)
-        if (rw, rh) != (W, H):
-            frame = np.asarray(Image.fromarray(frame).resize((W, H), Image.LANCZOS))
+        # fov = cover(foto llena el cuadro) × fs del movimiento:
+        # sin bandas vacías ni bordes recortados desde el primer frame
+        frame = scene.render(C, T, W=rw, H=rh, fov_scale=fsb * fs)
         proc.stdin.write(frame.tobytes())
         if i % 10 == 0:
             log(f"PROG {idx} {total} {i} {n_frames}")
