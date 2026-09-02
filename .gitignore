@@ -86,3 +86,9 @@ public/models3d/*
 /.gh-pages/
 /scripts/github-sync/state/
 /.zscripts
+
+# motor: caches y modelos (no versionar)
+scripts/orbita3d/cache3d/
+data/
+prisma/*.db
+qa/

@@ -9,7 +9,7 @@ import sharp from "sharp";
 
 // Raíz de datos portable: sandbox (cwd=/home/z/my-project) y runtime FC
 // (cwd=/app/next-service-dist) escriben junto al proceso. Override con ORBITA_DATA_ROOT.
-const DATA_ROOT = process.env.ORBITA_DATA_ROOT ?? process.cwd();
+export const DATA_ROOT = process.env.ORBITA_DATA_ROOT ?? process.cwd();
 export const STORAGE_ROOT = path.join(DATA_ROOT, "storage", "orbita");
 export const RENDERS_ROOT = path.join(DATA_ROOT, "renders");
 

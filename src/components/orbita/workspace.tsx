@@ -20,12 +20,14 @@ import DirectorPanel from "./director-panel";
 import RenderPanel from "./render-panel";
 import MicrositePanel from "./microsite-panel";
 import AnalyticsPanel from "./analytics-panel";
-import { ArrowLeft, ImageIcon, Clapperboard, Film, Globe, BarChart3, Loader2, Settings2 } from "lucide-react";
+import Viewer3DPanel from "./viewer3d-panel";
+import { ArrowLeft, ImageIcon, Clapperboard, Film, Globe, BarChart3, Box, Loader2, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 
 const TAB_META = [
   { value: "fotos", label: "Fotos", icon: ImageIcon },
   { value: "director", label: "AI Director", icon: Clapperboard },
+  { value: "tour3d", label: "Tour 3D", icon: Box },
   { value: "render", label: "Render", icon: Film },
   { value: "microsite", label: "Micrositio", icon: Globe },
   { value: "analytics", label: "Analytics", icon: BarChart3 },
@@ -143,6 +145,9 @@ export default function PropertyWorkspace({
         </TabsContent>
         <TabsContent value="director">
           <DirectorPanel detail={detail} onChange={load} />
+        </TabsContent>
+        <TabsContent value="tour3d">
+          <Viewer3DPanel detail={detail} onChange={load} />
         </TabsContent>
         <TabsContent value="render">
           <RenderPanel detail={detail} />

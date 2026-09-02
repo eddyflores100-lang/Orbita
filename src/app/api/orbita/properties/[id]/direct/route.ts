@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { aiDirect } from "@/lib/orbita/director";
-import { MUSIC_STYLES, TONES, type Format, type MusicStyle } from "@/lib/orbita/types";
+import { FORMATS, MUSIC_STYLES, TONES, type Format, type MusicStyle } from "@/lib/orbita/types";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -18,11 +18,11 @@ export async function POST(req: Request, ctx: Ctx) {
   }
 
   let tone = property.tone;
-  let format: Format = property.aspect === "9:16" ? "9:16" : "16:9";
+  let format: Format = property.aspect === "9:16" ? "9:16" : property.aspect === "1:1" ? "1:1" : "16:9";
   try {
     const body = (await req.json()) as { tone?: string; format?: string };
     if (body.tone && (TONES as readonly string[]).includes(body.tone)) tone = body.tone;
-    if (body.format === "9:16" || body.format === "16:9") format = body.format;
+    if (body.format && (FORMATS as readonly string[]).includes(body.format)) format = body.format as Format;
   } catch {
     /* body opcional */
   }

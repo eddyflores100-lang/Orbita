@@ -79,6 +79,9 @@ model OrbitProperty {
   logline         String? // frase del AI Storytelling
   musicStyle      String? // cinematic | luxury | upbeat | minimal | warm | corporate
   bpm             Int?
+  voiceoverOn     Boolean  @default(false) // locución IA sobre el video final
+  voiceStyle      String? // voz del narrador (ver VOICES en src/lib/orbita/types.ts)
+  hotspots        String? // JSON: [{photoId, u, v, label}] puntos de interés 3D (u,v ∈ [0,1] sobre la foto)
   status          String   @default("DRAFT") // DRAFT | ANALYZED | DIRECTED | READY
   published       Boolean  @default(false)
   views           Int      @default(0)

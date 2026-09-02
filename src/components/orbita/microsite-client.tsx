@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { orbitApi, mediaUrl } from "@/lib/orbita/api";
-import { ROOM_LABEL } from "@/lib/orbita/types";
-import { MapPin, MessageCircle, X, ChevronLeft, ChevronRight, PlayCircle, ArrowUpRight } from "lucide-react";
+import { ROOM_LABEL, type Hotspot } from "@/lib/orbita/types";
+import { MapPin, MessageCircle, X, ChevronLeft, ChevronRight, PlayCircle, ArrowUpRight, Box, Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
 
 interface PropertyLite {
   id: string;
@@ -19,6 +20,7 @@ interface PropertyLite {
   ctaText: string;
   brandColor: string;
   features: string[];
+  voiceoverOn?: boolean;
 }
 
 interface PhotoLite {
@@ -35,11 +37,23 @@ export default function MicrositeClient({
   property,
   photos,
   video,
+  hotspots = [],
 }: {
   property: PropertyLite;
   photos: PhotoLite[];
   video: { output: string; thumb: string | null } | null;
+  hotspots?: Hotspot[];
 }) {
+  // Three.js carga solo cuando el visitante abre el tour (sin peso inicial)
+  const Viewer3D = useMemo(
+    () => dynamic(() => import("./viewer3d"), { loading: () => (
+      <div className="flex h-[420px] w-full items-center justify-center rounded-xl border border-[rgba(167,139,250,0.18)] bg-[#0d0b09] text-sm text-violet-200">
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Preparando el tour 3D…
+      </div>
+    ) }),
+    [],
+  );
+  const [tourOpen, setTourOpen] = useState(false);
   const params = useSearchParams();
   const ref = params.get("ref") ?? "direct";
   const [lightbox, setLightbox] = useState<number | null>(null);
@@ -121,6 +135,31 @@ export default function MicrositeClient({
               src={mediaUrl(`renders/${video.output}`)}
               className="w-full rounded-xl border border-[rgba(167,139,250,0.18)]"
             />
+          </section>
+        )}
+
+        {/* Tour 3D interactivo */}
+        {photos.length > 0 && (
+          <section>
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+              <Box className="h-5 w-5 text-violet-300" /> Tour 3D interactivo
+            </h2>
+            {!tourOpen ? (
+              <button
+                onClick={() => setTourOpen(true)}
+                className="group relative w-full overflow-hidden rounded-xl border border-[rgba(167,139,250,0.18)]"
+                aria-label="Abrir tour 3D interactivo"
+              >
+                <img src={mediaUrl(photos[0].file)} alt="Vista previa del tour 3D" className="h-[300px] w-full object-cover opacity-80 transition group-hover:scale-[1.02] group-hover:opacity-100 sm:h-[420px]" loading="lazy" />
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span className="flex items-center gap-2 rounded-full bg-[#14062b]/85 px-6 py-3 text-sm font-semibold text-violet-100 shadow-xl backdrop-blur">
+                    <Box className="h-5 w-5" /> Asoma la cabeza dentro de la escena · entrar en 3D
+                  </span>
+                </span>
+              </button>
+            ) : (
+              <Viewer3D propertyId={property.id} photos={photos.map((p) => ({ ...p, propertyId: property.id, orientation: "landscape", hash: "", size: 0, origin: "", roomConf: null, quality: null, analysis: null }))} hotspots={hotspots} />
+            )}
           </section>
         )}
 

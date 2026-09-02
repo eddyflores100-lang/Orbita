@@ -18,6 +18,9 @@ export interface OrbitPropertyDTO {
   logline: string | null;
   musicStyle: string | null;
   bpm: number | null;
+  voiceoverOn: boolean;
+  voiceStyle: string | null;
+  hotspots: string | null;
   status: string;
   published: boolean;
   views: number;
@@ -86,6 +89,11 @@ export function mediaUrl(rel: string): string {
 
 export function thumbUrl(photo: OrbitPhotoDTO): string {
   return mediaUrl(photo.thumb);
+}
+
+/** Mapa de profundidad (PNG) de una foto para el visor 3D del navegador. */
+export function depthUrl(propertyId: string, photoId: string): string {
+  return `/api/orbita/properties/${propertyId}/photos/${photoId}/depth`;
 }
 
 async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {

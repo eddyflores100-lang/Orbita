@@ -13,6 +13,7 @@ import { promisify } from "util";
 import { mkdir, writeFile, rm } from "fs/promises";
 import path from "path";
 import { generateMusic } from "./music";
+import { buildVoiceoverScript, mixVoiceoverDucking, synthesizeVoiceover, voiceTmpPath } from "./voiceover";
 import { RENDERS_ROOT, STORAGE_ROOT } from "./storage";
 import { FORMAT_DIMS, RES_SCALE, type Shot } from "./types";
 
@@ -175,11 +176,48 @@ async function renderJob(jobId: string): Promise<void> {
     });
     await writeFile(musicWav, wav);
 
+    // Locución IA (opcional): guion → TTS → mezcla con ducking sobre la música
+    let finalAudio = musicWav;
+    if (job.property.voiceoverOn) {
+      try {
+        await setJob(jobId, { status: "ENCODING", stage: "Locución IA", progress: 94 });
+        const rooms = validShots.map((s) => {
+          const p = photoById.get(s.photoId);
+          let room: string | null = p?.room ?? null;
+          try {
+            const a = p?.analysis ? (JSON.parse(p.analysis) as { room?: string }) : null;
+            room = a?.room ?? room;
+          } catch { /* análisis ausente */ }
+          return room;
+        });
+        const feats: string[] = (() => {
+          try { return job.property.features ? (JSON.parse(job.property.features) as string[]) : []; }
+          catch { return []; }
+        })();
+        const { text } = await buildVoiceoverScript({
+          propertyName: job.property.name,
+          tone: job.property.tone,
+          logline: job.property.logline,
+          features: feats,
+          rooms,
+          totalSec: Math.max(4, totalMs / 1000),
+        });
+        const voiceWav = voiceTmpPath(tmpDir!);
+        await writeFile(voiceWav, await synthesizeVoiceover(text, job.property.voiceStyle));
+        const mixedWav = path.join(tmpDir!, "audio-mix.wav");
+        await mixVoiceoverDucking(musicWav, voiceWav, mixedWav);
+        finalAudio = mixedWav;
+      } catch {
+        // sin locución el video sigue siendo válido: música sola
+        finalAudio = musicWav;
+      }
+    }
+
     // Mux final (+ watermark opcional)
     const outRel = `job-${jobId}.mp4`;
     const outAbs = path.join(RENDERS_ROOT, outRel);
     const wm = job.property.watermarkOn && job.property.watermarkText ? sanitizeDrawtext(job.property.watermarkText) : "";
-    const args: string[] = ["-y", "-i", silentMp4, "-i", musicWav];
+    const args: string[] = ["-y", "-i", silentMp4, "-i", finalAudio];
     if (wm) {
       const fs = Math.round(H / 26);
       args.push(

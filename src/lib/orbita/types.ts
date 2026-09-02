@@ -140,7 +140,7 @@ export const MUSIC_LABEL: Record<MusicStyle, string> = {
 };
 
 // ─── Formatos / resoluciones ───
-export const FORMATS = ["16:9", "9:16"] as const;
+export const FORMATS = ["16:9", "9:16", "1:1"] as const;
 export type Format = (typeof FORMATS)[number];
 export const RESOLUTIONS = ["720", "1080"] as const;
 export type Resolution = (typeof RESOLUTIONS)[number];
@@ -148,8 +148,27 @@ export type Resolution = (typeof RESOLUTIONS)[number];
 export const FORMAT_DIMS: Record<string, { w: number; h: number }> = {
   "16:9": { w: 1280, h: 720 },
   "9:16": { w: 720, h: 1280 },
+  "1:1": { w: 720, h: 720 },
 };
 export const RES_SCALE: Record<string, number> = { "720": 1, "1080": 1.5 };
+
+// ─── Locución IA (TTS) ───
+export const VOICES = ["tongtong", "xiaochen", "luodo", "kazi"] as const;
+export type Voice = (typeof VOICES)[number];
+export const VOICE_LABEL: Record<Voice, string> = {
+  tongtong: "Cálida · cercana",
+  xiaochen: "Profesional · sobria",
+  luodo: "Expresiva · vendedora",
+  kazi: "Clara · neutra",
+};
+
+// ─── Hotspots 3D (puntos de interés sobre una foto) ───
+export interface Hotspot {
+  photoId: string;
+  u: number; // 0..1 posición horizontal sobre la foto original
+  v: number; // 0..1 posición vertical (0 = arriba)
+  label: string;
+}
 
 // ─── Shot del plan del director ───
 export interface Shot {

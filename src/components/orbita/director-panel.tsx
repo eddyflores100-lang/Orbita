@@ -20,13 +20,15 @@ import {
   MOVE_DESC,
   TONES,
   TONE_LABEL,
+  VOICES,
+  VOICE_LABEL,
   type CameraMove,
   type Shot,
   type Tone,
   formatDuration,
 } from "@/lib/orbita/types";
 import PreviewPlayer from "./preview-player";
-import { Wand2, Loader2, ArrowUp, ArrowDown, Trash2, Sparkles, Film } from "lucide-react";
+import { Wand2, Loader2, ArrowUp, ArrowDown, Trash2, Sparkles, Film, Mic } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -60,6 +62,19 @@ export default function DirectorPanel({
       toast.success(`Formato ${format} — re-dirige para recalcular el recorrido`);
     } catch {
       toast.error("No se pudo cambiar el formato");
+    }
+  };
+
+  const changeVoiceover = async (on: boolean, voice?: string) => {
+    try {
+      await orbitApi.updateProperty(property.id, {
+        voiceoverOn: on,
+        ...(voice !== undefined ? { voiceStyle: voice } : {}),
+      });
+      await onChange();
+      toast.success(on ? "Locución IA activada — se generará en el próximo render" : "Locución desactivada");
+    } catch {
+      toast.error("No se pudo cambiar la locución");
     }
   };
 
@@ -133,12 +148,13 @@ export default function DirectorPanel({
           </div>
           <div className="flex items-center gap-2">
             <Select value={property.aspect} onValueChange={(v) => void changeFormat(v)}>
-              <SelectTrigger className="w-[104px] h-9 text-xs" aria-label="Formato del video">
+              <SelectTrigger className="w-[110px] h-9 text-xs" aria-label="Formato del video">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="16:9" className="text-xs">16:9 · Web</SelectItem>
                 <SelectItem value="9:16" className="text-xs">9:16 · Reels</SelectItem>
+                <SelectItem value="1:1" className="text-xs">1:1 · Feed</SelectItem>
               </SelectContent>
             </Select>
             <Select value={toneOverride} onValueChange={setToneOverride}>
@@ -178,6 +194,45 @@ export default function DirectorPanel({
 
       {plan && (
         <>
+          {/* Locución IA */}
+          <div className="rounded-xl border border-[rgba(167,139,250,0.14)] bg-[#0e1019] p-5">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <Mic className="h-4 w-4 text-violet-300" /> Locución con IA
+                </h3>
+                <p className="text-xs text-[#8f8b9f] mt-1 max-w-xl">
+                  Un guion breve escrito por IA y narrado con voz ultrarrealista sobre el video final. La música baja
+                  automáticamente cuando habla (ducking) y sube en los silencios.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Select
+                  value={property.voiceStyle ?? "tongtong"}
+                  onValueChange={(v) => void changeVoiceover(property.voiceoverOn, v)}
+                >
+                  <SelectTrigger className="w-[170px] h-9 text-xs" aria-label="Voz del narrador">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VOICES.map((v) => (
+                      <SelectItem key={v} value={v} className="text-xs">{VOICE_LABEL[v]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <button
+                  role="switch"
+                  aria-checked={property.voiceoverOn}
+                  aria-label="Activar locución IA"
+                  onClick={() => void changeVoiceover(!property.voiceoverOn)}
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${property.voiceoverOn ? "bg-violet-500" : "bg-[#26283a]"}`}
+                >
+                  <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${property.voiceoverOn ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Preview */}
           <div className="rounded-xl border border-[rgba(167,139,250,0.14)] bg-[#0e1019] p-5">
             <h3 className="font-semibold text-sm mb-4 flex items-center gap-2">

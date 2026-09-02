@@ -36,6 +36,18 @@ export default async function PropertyMicrositePage({
     }
   })();
 
+  const hotspots = (() => {
+    try {
+      const arr = property.hotspots ? (JSON.parse(property.hotspots) as Array<{ photoId?: string; u?: number; v?: number; label?: string }>) : [];
+      const ids = new Set(property.photos.map((p) => p.id));
+      return arr
+        .filter((h) => h.photoId && ids.has(h.photoId) && typeof h.u === "number" && typeof h.v === "number" && !!h.label)
+        .map((h) => ({ photoId: h.photoId as string, u: h.u as number, v: h.v as number, label: h.label as string }));
+    } catch {
+      return [];
+    }
+  })();
+
   return (
     <MicrositeClient
       property={{
@@ -51,9 +63,11 @@ export default async function PropertyMicrositePage({
         ctaText: property.ctaText,
         brandColor: property.brandColor,
         features,
+        voiceoverOn: property.voiceoverOn,
       }}
       photos={property.photos.map((p) => ({ id: p.id, thumb: p.thumb, file: p.file, caption: p.caption, room: p.room, width: p.width, height: p.height }))}
       video={property.jobs[0] ? { output: property.jobs[0].output as string, thumb: property.jobs[0].thumb } : null}
+      hotspots={hotspots}
     />
   );
 }

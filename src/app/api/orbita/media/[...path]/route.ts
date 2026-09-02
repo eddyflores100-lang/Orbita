@@ -14,16 +14,26 @@ const MIME: Record<string, string> = {
   ".wav": "audio/wav",
 };
 
-/** GET /api/orbita/media/{storage|renders}/... — sirve archivos con anti-traversal. */
+/** GET /api/orbita/media/{storage|renders}/... — sirve archivos con anti-traversal.
+ * Compatibilidad: si el primer segmento no es storage|renders (p. ej.
+ * /media/{propertyId}/p-x-o.jpg), se resuelve bajo STORAGE_ROOT. */
 export async function GET(_req: Request, ctx: Ctx) {
   const { path: parts } = await ctx.params;
   if (!Array.isArray(parts) || parts.length < 2) {
     return NextResponse.json({ error: "Ruta no válida" }, { status: 400 });
   }
-  const root = parts[0] === "renders" ? RENDERS_ROOT : parts[0] === "storage" ? STORAGE_ROOT : null;
-  if (!root) return NextResponse.json({ error: "Raíz no válida" }, { status: 400 });
-
-  const rel = parts.slice(1).join("/");
+  let root: string;
+  let rel: string;
+  if (parts[0] === "renders") {
+    root = RENDERS_ROOT;
+    rel = parts.slice(1).join("/");
+  } else if (parts[0] === "storage") {
+    root = STORAGE_ROOT;
+    rel = parts.slice(1).join("/");
+  } else {
+    root = STORAGE_ROOT;
+    rel = parts.join("/");
+  }
   const abs = path.join(root, rel);
   if (!abs.startsWith(root)) return NextResponse.json({ error: "Ruta no válida" }, { status: 400 });
 
