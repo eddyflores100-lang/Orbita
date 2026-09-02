@@ -92,3 +92,10 @@ scripts/orbita3d/cache3d/
 data/
 prisma/*.db
 qa/
+
+# ÓRBITA render engine — intermedios y cachés locales
+scripts/orbita3d/output/
+scripts/orbita3d/out*/
+scripts/orbita3d/cache3d/
+scripts/orbita3d/depth/
+scripts/orbita3d/dbg/
