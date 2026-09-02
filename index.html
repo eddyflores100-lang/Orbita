@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ÓRBITA — De las fotos de la propiedad al video 3D REAL</title>
-<meta name="description" content="ÓRBITA convierte fotos reales de una propiedad en escenas 3D REALES (nube de puntos con profundidad métrica, capas LDI y relleno de fondo): la cámara se sumerge y orbita dentro de la escena. Demo en vivo + video renderizado del aviso real de La Floresta, Quito.">
+<meta name="description" content="ÓRBITA convierte fotos de una propiedad en video 3D con paralaje denso por profundidad real: la cámara se sumerge y orbita sin inventar contenido. Demo en vivo + video renderizado — La Floresta, Quito.">
 <meta property="og:title" content="ÓRBITA — fotos de la propiedad → video 3D real">
-<meta property="og:description" content="No es parallax: cada píxel se convierte en un punto 3D con Z métrica. La cámara se sumerge, orbita y revela el fondo detrás de los objetos. Motor LDI (3D Photography, CVPR 2020).">
+<meta property="og:description" content="Paralaje 3D denso por profundidad real: la cámara se sumerge y orbita, cada píxel del video sale de tu foto. Sin rellenos ni contenido inventado.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="poster.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -36,25 +36,25 @@
 <header class="hero" id="top">
   <div class="wrap hero-in">
     <div class="hero-copy">
-      <span class="badge">Motor 3D real · LDI + inpainting · 3D Photography (CVPR 2020)</span>
+      <span class="badge">Motor 3D · paralaje denso por profundidad · cero contenido inventado</span>
       <h1>De las fotos de la propiedad<br>al <em>video 3D real</em>.</h1>
-      <p class="lead">No es parallax ni un efecto: cada píxel se convierte en un punto 3D con
-      profundidad métrica. La cámara <b>se sumerge</b> en la escena y <b>orbita</b> alrededor de los
-      objetos — que tapan al fondo de verdad — con relleno de lo que queda detrás.</p>
+      <p class="lead">Paralaje 3D denso guiado por profundidad real: cada píxel se mueve según
+      su distancia a la cámara. La cámara <b>se sumerge</b> y <b>orbita</b> con movimientos
+      cinematográficos — <b>sin inventar contenido</b>: cada píxel del video sale de tu foto.</p>
       <div class="cta-row">
         <a class="btn solid" href="#visor">Probar con tus fotos</a>
         <a class="btn ghost" href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">Código y app completa ↗</a>
       </div>
       <div class="stats">
-        <div><b>9</b><span>fotos reales del aviso demo</span></div>
-        <div><b>41 s</b><span>video 1080p renderizado</span></div>
+        <div><b>9</b><span>fotos demo generadas con IA</span></div>
+        <div><b>14 s</b><span>video 3D renderizado</span></div>
         <div><b>100%</b><span>en el navegador · sin servidor</span></div>
       </div>
     </div>
     <figure class="hero-video">
       <video src="la-floresta-3d.mp4" poster="poster.jpg" autoplay muted loop playsinline></video>
-      <figcaption>Render real del motor — <b>Departamento 199 m² · La Floresta, Quito</b> (aviso RE/MAX).
-      <a href="https://github.com/eddyflores100-lang/Orbita/releases" target="_blank" rel="noopener">Video completo 41 s 1080p con locución IA ↗</a></figcaption>
+      <figcaption>Render real del motor — <b>Departamento 199 m² · La Floresta, Quito</b> (fotos IA, sin marcas de agua).
+      <a href="https://github.com/eddyflores100-lang/Orbita/releases" target="_blank" rel="noopener">Video completo 41 s ↗</a></figcaption>
     </figure>
   </div>
 </header>
@@ -62,7 +62,7 @@
 <section class="section" id="motor">
   <div class="wrap">
     <h2>Cómo funciona el <span class="accent">3D real</span></h2>
-    <p class="section-sub">El mismo pipeline del backend (Layered Depth Images) implementado también en tu navegador.</p>
+    <p class="section-sub">El motor de paralaje denso del backend, demostrado también en tu navegador.</p>
     <div class="steps">
       <article class="step">
         <span class="n">01</span>
@@ -71,28 +71,28 @@
       </article>
       <article class="step">
         <span class="n">02</span>
-        <h3>Nube de puntos métrica</h3>
-        <p>Cada píxel se convierte en un punto con posición 3D real: los cercanos se abren en perspectiva, los lejanos se comprimen. Profundidad verdadera, no desplazamiento de malla.</p>
+        <h3>Warp por profundidad</h3>
+        <p>Cada píxel de salida se muestrea de tu foto según su profundidad real: los cercanos se abren en perspectiva, los lejanos apenas se mueven. Las líneas rectas permanecen rectas.</p>
       </article>
       <article class="step">
         <span class="n">03</span>
-        <h3>Relleno de fondo</h3>
-        <p>Detrás de cada objeto se generan puntos con el color del fondo vecino (inpainting-lite). Al orbitar se revela el fondo — y no agujeros negros.</p>
+        <h3>Cero contenido inventado</h3>
+        <p>Sin rellenos ni inpainting: cada píxel del video sale de TU foto. Lo que se revela tras un objeto estira el fondo de forma continua — sin manchas ni sombras falsas.</p>
       </article>
       <article class="step">
         <span class="n">04</span>
         <h3>Cámara que viaja</h3>
-        <p>La cámara se sumerge, orbita, barre y sube en grúa DENTRO de la escena, con oclusión por z-buffer: lo cercano tapa lo lejano de verdad. Modo libre con el ratón.</p>
+        <p>La cámara se sumerge, orbita, barre y sube en grúa con amplitudes contenidas: la profundidad se siente sin deformar la escena. Modo libre con el ratón.</p>
       </article>
     </div>
-    <p class="note">Backend de producción: <code>ldi.py</code> + <code>engine3d.py</code> — segmentación por protusión, inpainting de Laplace y renders 1080p con ffmpeg. Ver <a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">repo</a>.</p>
+    <p class="note">Backend de producción: <code>ldi.py</code> + <code>engine3d.py</code> — warp inverso denso, profundidad filtrada y renders 16:9 · 9:16 · 1:1 con ffmpeg. Ver <a href="https://github.com/eddyflores100-lang/Orbita" target="_blank" rel="noopener">repo</a>.</p>
   </div>
 </section>
 
 <section class="section alt" id="visor">
   <div class="wrap">
     <h2>Convierte tus fotos <span class="accent">ahora</span></h2>
-    <p class="section-sub">Suelta fotos de una propiedad (o pega el link del aviso) y mira cómo se convierten en escenas 3D reales.</p>
+    <p class="section-sub">Suelta fotos de una propiedad (o pega el link del aviso) y mira cómo se convierten en escenas con profundidad real.</p>
 
     <div class="import-grid">
       <div class="dropzone" id="dropzone">
@@ -102,13 +102,13 @@
         <button class="btn ghost small" onclick="document.getElementById('file').click()">Elegir archivos</button>
       </div>
       <div class="urlbox">
-        <label>Pega el link del aviso (RE/MAX, MercadoLibre…)</label>
+        <label>Pega el link del aviso (Portalinmobiliario, MercadoLibre…)</label>
         <div class="row">
-          <input type="url" id="url" placeholder="https://www.remax.com.ec/…" spellcheck="false">
+          <input type="url" id="url" placeholder="https://www.portalinmobiliario.com/…" spellcheck="false">
           <button class="btn solid small" id="btn-url">Importar</button>
         </div>
         <div class="mini" id="import-status">Se leen las imágenes del aviso vía proxies CORS y se verifican una por una.</div>
-        <button class="btn ghost small" id="btn-examples">Fotos de ejemplo reales (9)</button>
+        <button class="btn ghost small" id="btn-examples">Fotos de ejemplo (9)</button>
       </div>
     </div>
 
@@ -164,7 +164,7 @@
     <div class="vertical-grid">
       <figure class="vertical-video">
         <video src="la-floresta-916.mp4" controls playsinline preload="metadata"></video>
-        <figcaption><b>9:16 · 41 s · 1080×1920</b> — render 3D real + música procedural + locución IA.</figcaption>
+        <figcaption><b>9:16 · 14 s · 720×1280</b> — render 3D real + música procedural (listo para Reels/TikTok).</figcaption>
       </figure>
       <div class="vertical-copy">
         <article class="step" style="margin-bottom:14px">

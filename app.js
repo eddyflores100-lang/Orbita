@@ -167,12 +167,12 @@ $("#btn-url").addEventListener("click", async () => {
 
 /* ejemplos */
 $("#btn-examples").addEventListener("click", async () => {
-  $("#import-status").textContent = "Cargando las 9 fotos reales del aviso de La Floresta…";
-  const names = ["photo_01.webp", "photo_02.webp", "photo_03.jpg", "photo_04.jpg", "photo_05.jpg", "photo_06.jpg", "photo_07.jpg", "photo_08.jpg", "photo_09.jpg"];
+  $("#import-status").textContent = "Cargando las 9 fotos de ejemplo…";
+  const names = ["photo_01.png", "photo_02.png", "photo_03.png", "photo_04.png", "photo_05.png", "photo_06.png", "photo_07.png", "photo_08.png", "photo_09.png"];
   for (const n of names) {
     try { await addPhotoFromUrl("./photos/" + n, n); } catch (e) { /* omite */ }
   }
-  $("#import-status").textContent = "9 fotos reales cargadas (aviso RE/MAX La Floresta, Quito).";
+  $("#import-status").textContent = "9 fotos de ejemplo cargadas (generadas con IA — sin marcas de agua).";
 });
 
 /* ── movimientos ── */
@@ -258,4 +258,4 @@ $("#btn-stopmusic").addEventListener("click", () => { music.stop(); renderTracks
 
 /* ── visor: montar ── */
 pc3d.mount($("#viewport"));
-$("#viewer-status").textContent = "Carga una foto o pulsa «Fotos de ejemplo reales» para convertir a 3D.";
+$("#viewer-status").textContent = "Carga una foto o pulsa «Fotos de ejemplo» para convertir a 3D.";
