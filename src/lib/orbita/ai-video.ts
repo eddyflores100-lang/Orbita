@@ -164,13 +164,15 @@ export interface AIClipRequest {
   room: string | null;
   tone: string;
   quality: AIQuality;
+  /** Formato destino ("16:9" | "9:16" | "1:1"): activa tamaño nativo vertical/horizontal. */
+  format?: string;
   onStage?: (msg: string) => void;
 }
 
 /** Devuelve la ruta LOCAL de un clip IA para la foto dada (genera o usa cache). */
 export async function getAIClip(req: AIClipRequest): Promise<string> {
   const prompt = buildClipPrompt(req.move, req.room, req.tone);
-  const hit = await cachedClip(req.photoId, req.move, "src", req.quality, prompt);
+  const hit = await cachedClip(req.photoId, req.move, req.format ?? "src", req.quality, prompt);
   if (hit) return hit;
 
   const zai = await ZAI.create();
@@ -178,7 +180,14 @@ export async function getAIClip(req: AIClipRequest): Promise<string> {
   const b64 = await readFile(abs).then((b) => b.toString("base64"));
 
   req.onStage?.("Enviando foto al motor de video IA");
-  const { id } = await createTaskWithBackoff(zai, {
+  // Tamaño nativo por formato: el modelo recompone el encuadre (sin recortar).
+  const SIZE_BY_FORMAT: Record<string, string> = {
+    "16:9": "1280x720",
+    "9:16": "720x1280",
+    "1:1": "720x720",
+  };
+  const nativeSize = req.format ? SIZE_BY_FORMAT[req.format] : undefined;
+  const createBody: Record<string, unknown> = {
     prompt,
     image_url: `data:image/png;base64,${b64}`,
     quality: req.quality,
@@ -186,7 +195,23 @@ export async function getAIClip(req: AIClipRequest): Promise<string> {
     watermark_enabled: false,
     fps: 30,
     duration: 5,
-  });
+  };
+  if (nativeSize) createBody.size = nativeSize;
+  let id: string;
+  try {
+    ({ id } = await createTaskWithBackoff(
+      zai,
+      createBody as unknown as Parameters<typeof createTaskWithBackoff>[1],
+    ));
+  } catch (err) {
+    if (!nativeSize) throw err;
+    req.onStage?.("Tamaño nativo rechazado; reintentando en aspecto original");
+    delete createBody.size;
+    ({ id } = await createTaskWithBackoff(
+      zai,
+      createBody as unknown as Parameters<typeof createTaskWithBackoff>[1],
+    ));
+  }
 
   req.onStage?.("Generando movimiento de cámara (IA)");
   const url = await pollTask(zai, id, (sec) => {
@@ -200,7 +225,7 @@ export async function getAIClip(req: AIClipRequest): Promise<string> {
   if (buf.length < 50_000) throw new Error("clip IA demasiado pequeño o corrupto");
 
   await mkdir(aiCacheDir(), { recursive: true });
-  const outFile = path.join(aiCacheDir(), `${cacheKey(req.photoId, req.move, "src", req.quality, prompt)}.mp4`);
+  const outFile = path.join(aiCacheDir(), `${cacheKey(req.photoId, req.move, req.format ?? "src", req.quality, prompt)}.mp4`);
   const { writeFile } = await import("fs/promises");
   await writeFile(outFile, buf);
   return outFile;

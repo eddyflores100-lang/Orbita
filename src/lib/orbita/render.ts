@@ -106,9 +106,27 @@ async function normalizeClip(
   // tpad clona el último frame para garantizar material suficiente; -t recorta EXACTO.
   const slowmo = targetSec > srcDur ? Math.min(1.6, targetSec / srcDur) : 1;
 
+  // Aspect-aware: material en otro aspect (p.ej. clip 16:9 hacia render 9:16)
+  // se rellena con fondo difuminado en vez de recortar la composición.
+  let vf = `scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H},fps=30,setpts=PTS*${slowmo.toFixed(4)},tpad=stop_mode=clone:stop_duration=3`;
+  try {
+    const pr = await run("ffprobe", [
+      "-v", "error", "-select_streams", "v:0",
+      "-show_entries", "stream=width,height", "-of", "csv=p=0", src,
+    ], { timeout: 30_000 });
+    const [pw, ph] = pr.stdout.trim().split(",").map((n) => parseInt(n, 10) || 0);
+    if (pw && ph) {
+      const srcA = pw / ph;
+      const dstA = W / H;
+      if (Math.abs(srcA - dstA) / dstA > 0.2) {
+        vf = `split[a][b];[a]scale=${W}:${H}:force_original_aspect_ratio=increase,boxblur=24:2,crop=${W}:${H}[bg];[b]scale=${W}:${H}:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,fps=30,setpts=PTS*${slowmo.toFixed(4)},tpad=stop_mode=clone:stop_duration=3`;
+      }
+    }
+  } catch { /* sin ffprobe: crop clásico */ }
+
   await run("ffmpeg", [
     "-y", "-i", src,
-    "-vf", `scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H},fps=30,setpts=PTS*${slowmo.toFixed(4)},tpad=stop_mode=clone:stop_duration=3`,
+    "-vf", vf,
     "-t", targetSec.toFixed(3),
     "-an",
     "-c:v", "libx264", "-preset", "ultrafast", "-crf", "16",
@@ -167,6 +185,7 @@ async function renderJob(jobId: string): Promise<void> {
       let lastStage = "";
       try {
         const clip = await getAIClip({
+      format: job.format,
           photoId: photo.id,
           photoRelPath: photo.file,
           move: s.move,
