@@ -51,4 +51,9 @@ if grep -q -- '--accept-data-loss' "$TMP/prisma-args"; then
   exit 1
 fi
 
+if grep -Eq '"db:push"[[:space:]]*:[^,]*--accept-data-loss' "$ROOT/package.json"; then
+  echo "FAIL: development db:push script allows destructive schema changes" >&2
+  exit 1
+fi
+
 echo "production startup fails closed when Prisma schema synchronization fails"
