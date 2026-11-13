@@ -1,8 +1,9 @@
-#!/bin/bash
-# Arranque de producción ÓRBITA: migra el schema y arranca el servidor standalone
-set -e
-# Sincroniza el schema de Prisma con la base de datos (idempotente)
-if [ -n "$DATABASE_URL" ]; then
-  ./node_modules/prisma/build/index.js db push --skip-generate --accept-data-loss || true
+#!/usr/bin/env bash
+# Production startup: do not serve against a schema that failed to synchronize.
+set -euo pipefail
+
+if [ -n "${DATABASE_URL:-}" ]; then
+  ./node_modules/prisma/build/index.js db push --skip-generate
 fi
+
 exec node server.js
